@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B5C3B"/>
+      <stop offset="100%" stop-color="#08462D"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <circle cx="980" cy="120" r="180" fill="#F18A00" fill-opacity="0.2"/>
+  <circle cx="160" cy="520" r="160" fill="#ffffff" fill-opacity="0.08"/>
+  <text x="600" y="290" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="84" font-weight="700">Iran Food</text>
+  <text x="600" y="370" text-anchor="middle" fill="#E8F3EC" font-family="Arial, sans-serif" font-size="34">'HDÌF /Ì*'3* *5HÌ1Ì :0'G'Ì 'Ì1'FÌ</text>
+</svg>
