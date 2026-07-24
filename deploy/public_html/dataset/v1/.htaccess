@@ -1,0 +1,8 @@
+# Passenger Node API on main domain (no subdomain, no PHP proxy)
+PassengerEnabled on
+PassengerAppRoot "/home/zjdekntt/iran_food/backend"
+PassengerBaseURI "/dataset/v1"
+PassengerNodejs "/home/zjdekntt/nodevenv/iran_food/backend/20/bin/node"
+PassengerAppType node
+PassengerStartupFile app.cjs
+PassengerAppLogFile "/home/zjdekntt/logs/iran-food-api.log"

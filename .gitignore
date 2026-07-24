@@ -5,6 +5,7 @@ dist/
 uploads/*
 !uploads/.gitkeep
 .env
+deploy/.ftp-secret.local
 *.log
 .DS_Store
 Thumbs.db

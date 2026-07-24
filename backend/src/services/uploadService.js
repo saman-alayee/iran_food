@@ -20,9 +20,9 @@ export async function createUpload({ name, phone, file }) {
   return doc;
 }
 
-export async function listUploads({ page = 1, limit = 20 } = {}) {
-  const safePage = Math.max(1, Number(page) || 1);
-  const safeLimit = Math.min(100, Math.max(1, Number(limit) || 20));
+export async function listUploads({ page = 1, limit = 12 } = {}) {
+  const safePage = Math.max(1, Number.parseInt(String(page), 10) || 1);
+  const safeLimit = Math.min(100, Math.max(1, Number.parseInt(String(limit), 10) || 12));
   const skip = (safePage - 1) * safeLimit;
 
   const [items, total] = await Promise.all([

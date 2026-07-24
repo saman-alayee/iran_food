@@ -6,13 +6,14 @@ const emit = defineEmits<{ openUpload: [] }>();
 const { isMobile, isTablet } = useBreakpoint();
 
 const visibleThumbs = computed(() => {
-  if (isMobile.value) return foodThumbs.slice(0, 16);
-  if (isTablet.value) return foodThumbs.slice(0, 25);
+  if (isMobile.value) return foodThumbs.slice(0, 12);
+  if (isTablet.value) return foodThumbs.slice(0, 16);
   return foodThumbs;
 });
 
 const gridCols = computed(() => {
   if (isMobile.value) return 'grid-cols-4';
+  if (isTablet.value) return 'grid-cols-5';
   return 'grid-cols-5';
 });
 
@@ -25,25 +26,20 @@ function scrollRewards() {
   <section id="home" class="section-shell relative py-6 sm:py-8 lg:py-12">
     <div class="grid items-center gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
       <div class="order-2 lg:order-1">
-        <div class="mb-4 flex items-center gap-3 sm:mb-5">
-          <div
-            class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-brand-green text-white shadow-soft sm:h-16 sm:w-16"
-            aria-hidden="true"
-          >
-            <svg class="h-7 w-7 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-              <path d="M4 14c2-6 6-9 8-9s6 3 8 9" />
-              <path d="M4 14h16v2a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-2z" />
-              <path d="M9 7c.5-2 2-3 3-3s2.5 1 3 3" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <h1 class="text-2xl font-extrabold tracking-tight text-brand-green sm:text-3xl lg:text-4xl">
-              Iran Food
-            </h1>
-            <p class="mt-1 text-sm font-semibold leading-6 text-slate-700 sm:text-base lg:text-lg">
-              {{ siteContent.tagline }}
-            </p>
-          </div>
+        <div class="mb-4 sm:mb-5">
+          <img
+            src="/images/iran-food-logo.png"
+            alt="Iran Food Dataset"
+            width="280"
+            height="80"
+            class="mb-3 h-14 w-auto max-w-[280px] object-contain object-right sm:mb-4 sm:h-16 sm:max-w-[320px] lg:h-[72px]"
+          />
+          <h1 class="text-3xl font-extrabold tracking-tight text-brand-green sm:text-4xl lg:text-5xl">
+            Iran Food
+          </h1>
+          <p class="mt-2 text-sm font-semibold leading-7 text-slate-700 sm:text-base lg:text-lg">
+            {{ siteContent.tagline }}
+          </p>
         </div>
 
         <div
@@ -96,19 +92,19 @@ function scrollRewards() {
 
       <div class="order-1 lg:order-2">
         <div
-          class="mx-auto grid gap-1.5 sm:max-w-md sm:gap-2 lg:max-w-none lg:gap-3"
-          :class="[gridCols, isMobile ? 'max-w-[280px]' : 'max-w-sm sm:max-w-md']"
+          class="mx-auto grid max-w-[240px] gap-1 sm:max-w-xs sm:gap-1.5 lg:max-w-sm lg:gap-2"
+          :class="gridCols"
         >
           <div
             v-for="thumb in visibleThumbs"
             :key="thumb.id"
-            class="aspect-square overflow-hidden rounded-full border-2 border-white shadow-sm ring-1 ring-brand-line"
+            class="aspect-square overflow-hidden rounded-md border border-white/90 shadow-sm ring-1 ring-brand-line/80 sm:rounded-lg"
           >
             <img
               :src="thumb.src"
               :alt="thumb.alt"
-              width="160"
-              height="160"
+              width="96"
+              height="96"
               loading="lazy"
               decoding="async"
               class="h-full w-full object-cover"

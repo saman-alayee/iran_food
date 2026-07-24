@@ -13,55 +13,43 @@ import { siteContent } from '~/composables/useSiteContent';
       </h2>
     </div>
 
-    <div class="grid items-center gap-6 lg:grid-cols-2 lg:gap-8">
-      <div class="order-2 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:order-1">
-        <article
-          v-for="card in siteContent.whyCards"
-          :key="card.title"
-          class="card-soft border border-brand-line/70 p-4 sm:p-5"
+    <div class="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)] lg:gap-8">
+      <div class="order-2 min-w-0 lg:order-none lg:col-start-1 lg:row-start-1">
+        <div
+          class="scrollbar-hide -mx-[var(--section-x)] flex snap-x snap-mandatory gap-3 overflow-x-auto px-[var(--section-x)] pb-1 sm:gap-4 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0"
         >
-          <div class="mb-3 grid h-10 w-10 place-items-center rounded-full bg-brand-green-light text-brand-green">
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="m9 16.2-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5L9 16.2z" />
-            </svg>
-          </div>
-          <h3 class="text-sm font-bold leading-6 text-slate-800">{{ card.title }}</h3>
-          <p class="mt-2 text-xs leading-6 text-slate-600">{{ card.text }}</p>
-        </article>
+          <article
+            v-for="card in siteContent.whyCards"
+            :key="card.title"
+            class="card-soft aspect-square w-[42vw] min-w-[132px] shrink-0 snap-start border border-brand-line/70 p-3 sm:w-[38vw] sm:min-w-[150px] sm:p-4 lg:w-auto lg:min-w-0"
+          >
+            <div
+              class="mb-2 grid h-9 w-9 place-items-center rounded-full bg-brand-green-light text-brand-green sm:mb-3 sm:h-10 sm:w-10"
+            >
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="m9 16.2-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5L9 16.2z" />
+              </svg>
+            </div>
+            <h3 class="text-xs font-bold leading-5 text-slate-800 sm:text-sm sm:leading-6">
+              {{ card.title }}
+            </h3>
+            <p class="mt-1.5 text-[11px] leading-5 text-slate-600 sm:mt-2 sm:text-xs sm:leading-6">
+              {{ card.text }}
+            </p>
+          </article>
+        </div>
       </div>
 
-      <div
-        class="relative order-1 mx-auto flex h-56 w-56 items-center justify-center sm:h-72 sm:w-72 lg:order-2 lg:h-80 lg:w-80"
-      >
-        <div
-          class="absolute inset-0 rounded-full border-2 border-dashed border-brand-green/30"
-          aria-hidden="true"
+      <div class="order-1 mx-auto w-full max-w-[280px] lg:order-none lg:col-start-2 lg:row-start-1 lg:max-w-none">
+        <img
+          src="/images/why-section-hero.png"
+          alt="ایران فود — کاسه غذاهای سالم ایرانی"
+          width="560"
+          height="560"
+          loading="lazy"
+          decoding="async"
+          class="h-auto w-full object-contain"
         />
-        <div class="absolute -inset-2 hidden overflow-hidden rounded-full sm:block">
-          <svg viewBox="0 0 300 300" class="h-full w-full">
-            <defs>
-              <path id="circlePath" d="M150,150 m-120,0 a120,120 0 1,1 240,0 a120,120 0 1,1 -240,0" />
-            </defs>
-            <text fill="#0B5C3B" font-size="14" font-weight="700" letter-spacing="4">
-              <textPath href="#circlePath" startOffset="0%">
-                IRAN FOOD • IRAN FOOD • IRAN FOOD •
-              </textPath>
-            </text>
-          </svg>
-        </div>
-        <div
-          class="relative h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-soft sm:h-52 sm:w-52 lg:h-60 lg:w-60"
-        >
-          <img
-            src="/images/foods/ghormeh-sabzi.png"
-            alt="قرمه سبزی — نمونه غذای ایرانی"
-            width="480"
-            height="480"
-            loading="lazy"
-            decoding="async"
-            class="h-full w-full object-cover"
-          />
-        </div>
       </div>
     </div>
   </section>

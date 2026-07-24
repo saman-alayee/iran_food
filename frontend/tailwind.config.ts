@@ -13,22 +13,22 @@ export default {
     extend: {
       colors: {
         brand: {
-          green: '#0B5C3B',
-          'green-dark': '#08462D',
-          'green-light': '#E8F3EC',
-          'green-mid': '#1F7A4D',
-          orange: '#F18A00',
-          'orange-dark': '#D97800',
-          cream: '#F7FAF6',
-          muted: '#5F6B64',
-          line: '#D7E3DA',
+          green: '#1A7A3A',
+          'green-dark': '#145F2E',
+          'green-light': '#E6F4EA',
+          'green-mid': '#2E9B52',
+          orange: '#F5A623',
+          'orange-dark': '#E09000',
+          cream: '#F8FBF9',
+          muted: '#4A5C52',
+          line: '#C8DDD0',
         },
       },
       fontFamily: {
         sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
       },
       boxShadow: {
-        nav: '0 10px 30px rgba(11, 92, 59, 0.22)',
+        nav: '0 10px 30px rgba(26, 122, 58, 0.28)',
         soft: '0 12px 40px rgba(15, 40, 28, 0.08)',
       },
       borderRadius: {

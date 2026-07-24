@@ -53,7 +53,7 @@ function scrollByDir(dir: number) {
           height="360"
           loading="lazy"
           decoding="async"
-          class="h-32 w-full object-cover sm:h-36"
+          class="aspect-[16/10] w-full object-cover"
         />
         <div class="p-3.5 sm:p-4">
           <h3 class="text-sm font-bold text-slate-800">{{ event.title }}</h3>

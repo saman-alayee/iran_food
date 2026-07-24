@@ -27,8 +27,8 @@ export const foodImages: FoodImage[] = [
   { id: 19, src: '/images/foods/fesenjan.png', alt: 'خورش فسنجان', name: 'فسنجان' },
 ];
 
-/** Hero grid uses 30 circular thumbnails; cycle through available food images. */
-export const foodThumbs: FoodImage[] = Array.from({ length: 30 }, (_, i) => {
+/** Hero collage — square thumbnails (20 items ≈ 4 rows); cycles through food images. */
+export const foodThumbs: FoodImage[] = Array.from({ length: 20 }, (_, i) => {
   const image = foodImages[i % foodImages.length];
   return {
     ...image,

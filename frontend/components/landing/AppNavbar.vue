@@ -30,28 +30,30 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <header class="section-shell sticky top-0 z-40 pt-3 sm:pt-5">
+  <header class="section-shell sticky top-0 z-40 bg-brand-cream/95 pt-3 backdrop-blur-sm sm:pt-4">
     <nav
-      class="flex items-center justify-between gap-2 rounded-2xl bg-brand-green px-3 py-2.5 text-white shadow-nav sm:gap-3 sm:rounded-pill sm:px-5"
+      class="flex items-center justify-between gap-2 rounded-2xl bg-brand-green px-3 py-2 text-white shadow-nav sm:gap-3 sm:rounded-pill sm:px-4 sm:py-2.5 lg:px-5"
       aria-label="منوی اصلی"
     >
       <a
         href="#home"
-        class="flex min-w-0 items-center gap-2 text-sm font-bold sm:text-base"
+        class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl bg-white/95 px-2 py-1 transition hover:bg-white"
         @click="closeMenu"
       >
-        <span class="truncate">Iran Food</span>
-        <span
-          class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/15 text-xs"
-          aria-hidden="true"
-        >
-          IF
-        </span>
+        <img
+          src="/images/iran-food-logo.png"
+          alt="Iran Food"
+          width="140"
+          height="48"
+          class="h-7 w-auto max-w-[120px] shrink-0 object-contain sm:h-8 sm:max-w-[132px]"
+        />
       </a>
 
-      <ul class="hidden items-center gap-3 text-xs font-medium lg:flex xl:gap-5 xl:text-sm">
+      <ul
+        class="hidden flex-1 items-center justify-center gap-3 px-2 text-xs font-medium lg:flex xl:gap-5 xl:text-sm"
+      >
         <li v-for="item in siteContent.nav" :key="item.href">
-          <a :href="item.href" class="whitespace-nowrap transition hover:text-white/80">
+          <a :href="item.href" class="whitespace-nowrap transition hover:text-white/85">
             {{ item.label }}
           </a>
         </li>
@@ -100,10 +102,11 @@ onBeforeUnmount(() => {
 
         <button
           type="button"
-          class="btn-orange !min-h-9 !px-3 !py-1.5 text-xs lg:hidden"
+          class="btn-orange !min-h-9 !px-3 !py-1.5 text-xs lg:!px-4"
           @click="openUpload"
         >
-          آپلود
+          <span class="hidden sm:inline">آپلود عکس</span>
+          <span class="sm:hidden">آپلود</span>
         </button>
 
         <button

@@ -33,13 +33,13 @@ onBeforeUnmount(() => {
     >
       <div class="overflow-hidden rounded-2xl md:row-span-1 lg:row-auto">
         <img
-          src="/images/foods/kuku-sabzi.png"
-          alt="کوکو سبزی — نمونه غذای ایرانی"
-          width="440"
-          height="440"
+          src="/images/coming-soon-hero.png"
+          alt="زن جوان با بشقاب غذای ایرانی — ایران فود"
+          width="640"
+          height="480"
           loading="lazy"
           decoding="async"
-          class="h-44 w-full object-cover sm:h-52 md:h-full md:min-h-[220px]"
+          class="h-44 w-full object-cover object-[center_20%] sm:h-52 md:h-full md:min-h-[220px]"
         />
       </div>
 
@@ -63,19 +63,33 @@ onBeforeUnmount(() => {
         </ul>
       </div>
 
-      <div
-        class="rounded-2xl bg-brand-green px-4 py-5 text-center text-white md:col-span-2 lg:col-span-1 lg:py-6"
-      >
-        <p class="text-xs opacity-80">زمان باقی‌مانده تا انتشار</p>
-        <div class="mt-3 flex items-center justify-center gap-6 sm:gap-8 lg:flex-col lg:gap-2">
-          <p class="text-3xl font-extrabold leading-none sm:text-4xl">
-            {{ remaining.days }}
-            <span class="text-base font-semibold">روز</span>
-          </p>
-          <p class="text-2xl font-bold sm:text-3xl lg:text-xl">
-            {{ remaining.hours }}
-            <span class="text-sm font-medium">ساعت</span>
-          </p>
+      <div class="flex flex-col items-center justify-center md:col-span-2 lg:col-span-1">
+        <p class="mb-3 text-center text-xs font-medium text-slate-500 sm:text-sm">
+          زمان باقی‌مانده تا انتشار
+        </p>
+        <div class="flex items-center justify-center gap-2 sm:gap-3">
+          <div
+            class="flex min-w-[88px] flex-col items-center rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-brand-line/70 sm:min-w-[96px] sm:px-6 sm:py-5"
+          >
+            <span class="text-4xl font-extrabold leading-none text-brand-green sm:text-5xl">
+              {{ remaining.days }}
+            </span>
+            <span class="mt-2 text-sm font-semibold text-brand-green sm:text-base">روز</span>
+          </div>
+
+          <span
+            class="pb-5 text-3xl font-bold leading-none text-brand-green sm:text-4xl"
+            aria-hidden="true"
+          >:</span>
+
+          <div
+            class="flex min-w-[88px] flex-col items-center rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-brand-line/70 sm:min-w-[96px] sm:px-6 sm:py-5"
+          >
+            <span class="text-4xl font-extrabold leading-none text-brand-green sm:text-5xl">
+              {{ remaining.hours }}
+            </span>
+            <span class="mt-2 text-sm font-semibold text-brand-green sm:text-base">ساعت</span>
+          </div>
         </div>
       </div>
     </div>

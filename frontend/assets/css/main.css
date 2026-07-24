@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --brand-green: #0b5c3b;
-  --brand-orange: #f18a00;
-  --brand-cream: #f7faf6;
+  --brand-green: #1a7a3a;
+  --brand-orange: #f5a623;
+  --brand-cream: #f8fbf9;
   --section-x: 1rem;
 }
 
@@ -30,9 +30,9 @@ body {
   @apply bg-brand-cream font-sans text-slate-800 antialiased;
   overflow-x: clip;
   background-image:
-    radial-gradient(circle at 8% 18%, rgba(31, 122, 77, 0.08), transparent 28%),
-    radial-gradient(circle at 92% 12%, rgba(241, 138, 0, 0.06), transparent 24%),
-    radial-gradient(circle at 88% 78%, rgba(11, 92, 59, 0.07), transparent 30%);
+    radial-gradient(circle at 10% 8%, rgba(46, 155, 82, 0.12), transparent 32%),
+    radial-gradient(circle at 90% 15%, rgba(245, 166, 35, 0.08), transparent 26%),
+    radial-gradient(circle at 85% 85%, rgba(26, 122, 58, 0.1), transparent 35%);
   background-attachment: scroll;
 }
 
@@ -53,7 +53,7 @@ body {
   position: absolute;
   width: 140px;
   height: 200px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 180'%3E%3Cpath fill='%230B5C3B' fill-opacity='0.08' d='M60 8c28 24 42 54 42 86 0 42-24 70-42 78-18-8-42-36-42-78C18 62 32 32 60 8z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 180'%3E%3Cpath fill='%231A7A3A' fill-opacity='0.09' d='M60 8c28 24 42 54 42 86 0 42-24 70-42 78-18-8-42-36-42-78C18 62 32 32 60 8z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: contain;
   pointer-events: none;

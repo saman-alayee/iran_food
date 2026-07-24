@@ -6,6 +6,12 @@ const statusMap: Record<string, { label: string; class: string }> = {
   progress: { label: 'در حال انجام', class: 'bg-amber-100 text-amber-700' },
   pending: { label: 'در انتظار', class: 'bg-slate-100 text-slate-600' },
 };
+
+function barColor(status: string) {
+  if (status === 'done') return 'bg-brand-green';
+  if (status === 'progress') return 'bg-brand-orange';
+  return 'bg-slate-300';
+}
 </script>
 
 <template>
@@ -15,6 +21,46 @@ const statusMap: Record<string, { label: string; class: string }> = {
         <h2 class="mb-4 text-base font-extrabold text-brand-green sm:mb-5 sm:text-lg">
           {{ siteContent.progressTitle }}
         </h2>
+
+        <div class="mb-5 rounded-2xl bg-brand-cream px-2 py-4 sm:mb-6 sm:px-4 sm:py-5">
+          <div class="grid grid-cols-6 gap-1 sm:gap-2">
+            <div
+              v-for="(step, idx) in siteContent.progressSteps"
+              :key="`bar-${step.title}`"
+              class="flex min-w-0 flex-col items-center"
+            >
+              <div class="mb-2 flex h-5 w-full items-center justify-center sm:h-6">
+                <span class="text-[10px] font-bold tabular-nums text-slate-700 sm:text-xs">
+                  {{ step.value }}٪
+                </span>
+              </div>
+
+              <div
+                class="relative h-24 w-full max-w-10 overflow-hidden rounded-t-lg bg-white ring-1 ring-brand-line/60 sm:h-28 sm:max-w-11 sm:rounded-t-xl"
+              >
+                <div
+                  class="absolute inset-x-0 bottom-0 rounded-t-lg transition-all sm:rounded-t-xl"
+                  :class="barColor(step.status)"
+                  :style="{ height: `${step.value}%` }"
+                />
+              </div>
+
+              <div class="mt-2 w-full text-center sm:mt-2.5">
+                <span
+                  class="mx-auto mb-1 grid h-5 w-5 place-items-center rounded-full bg-brand-green text-[10px] font-bold text-white"
+                >
+                  {{ idx + 1 }}
+                </span>
+                <p
+                  class="line-clamp-2 text-[9px] leading-4 text-slate-600 sm:text-[10px] sm:leading-5"
+                  :title="step.title"
+                >
+                  {{ step.title }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <ul class="space-y-2.5 sm:space-y-3">
           <li

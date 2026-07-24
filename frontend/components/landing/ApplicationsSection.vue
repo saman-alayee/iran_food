@@ -26,6 +26,12 @@ import { siteContent } from '~/composables/useSiteContent';
           <svg v-else-if="app.icon === 'api'" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7 7h2v10H7zm4-3h2v16h-2zm4 6h2v7h-2z" />
           </svg>
+          <svg v-else-if="app.icon === 'lifestyle'" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C8.5 2 6 4.5 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.5-2.5-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
+            />
+            <path d="M4 20h16v2H4v-2z" opacity="0.35" />
+          </svg>
           <svg v-else-if="app.icon === 'ai'" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 0 6h-1v1a4 4 0 0 1-8 0v-1H7a3 3 0 0 1 0-6h1V6a4 4 0 0 1 4-4zm-1 8H8a1 1 0 0 0 0 2h3v2a2 2 0 1 0 4 0v-2h3a1 1 0 0 0 0-2h-3V8a2 2 0 1 0-4 0v2z" />
           </svg>
