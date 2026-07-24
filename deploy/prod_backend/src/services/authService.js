@@ -1,23 +1,28 @@
 import bcrypt from 'bcryptjs';
-import { Admin } from '../models/Admin.js';
+import {
+  createAdmin,
+  findAdminByEmail,
+  findAdminById,
+  updateAdminPassword,
+} from '../models/Admin.js';
 import { AppError } from '../utils/AppError.js';
 import { signToken } from '../utils/jwt.js';
 import config from '../config/index.js';
 
 export async function ensureDefaultAdmin() {
-  const existing = await Admin.findOne({ email: config.admin.email });
+  const existing = await findAdminByEmail(config.admin.email);
   if (existing) return existing;
 
   try {
     const passwordHash = await bcrypt.hash(config.admin.password, 12);
-    return await Admin.create({
+    return await createAdmin({
       name: config.admin.name,
       email: config.admin.email,
       passwordHash,
     });
   } catch (error) {
     if (error?.code === 11000) {
-      const again = await Admin.findOne({ email: config.admin.email });
+      const again = await findAdminByEmail(config.admin.email);
       if (again) return again;
     }
     throw error;
@@ -25,8 +30,8 @@ export async function ensureDefaultAdmin() {
 }
 
 export async function loginAdmin(email, password) {
-  const admin = await Admin.findOne({ email }).select('+passwordHash');
-  if (!admin) {
+  const admin = await findAdminByEmail(email, { includePassword: true });
+  if (!admin?.passwordHash) {
     throw new AppError('ایمیل یا رمز عبور اشتباه است', 401);
   }
 
@@ -35,12 +40,12 @@ export async function loginAdmin(email, password) {
     throw new AppError('ایمیل یا رمز عبور اشتباه است', 401);
   }
 
-  const token = signToken({ sub: admin._id.toString(), role: 'admin' });
+  const token = signToken({ sub: String(admin.id), role: 'admin' });
 
   return {
     token,
     admin: {
-      id: admin._id,
+      id: admin.id,
       name: admin.name,
       email: admin.email,
     },
@@ -48,8 +53,8 @@ export async function loginAdmin(email, password) {
 }
 
 export async function changeAdminPassword(adminId, currentPassword, newPassword) {
-  const admin = await Admin.findById(adminId).select('+passwordHash');
-  if (!admin) {
+  const admin = await findAdminById(adminId, { includePassword: true });
+  if (!admin?.passwordHash) {
     throw new AppError('کاربر معتبر نیست', 401);
   }
 
@@ -66,15 +71,15 @@ export async function changeAdminPassword(adminId, currentPassword, newPassword)
     throw new AppError('رمز جدید باید با رمز فعلی متفاوت باشد', 400);
   }
 
-  admin.passwordHash = await bcrypt.hash(newPassword, 12);
-  await admin.save();
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await updateAdminPassword(admin.id, passwordHash);
 
-  const token = signToken({ sub: admin._id.toString(), role: 'admin' });
+  const token = signToken({ sub: String(admin.id), role: 'admin' });
 
   return {
     token,
     admin: {
-      id: admin._id,
+      id: admin.id,
       name: admin.name,
       email: admin.email,
     },

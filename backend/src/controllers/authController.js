@@ -1,4 +1,4 @@
-import { loginAdmin } from '../services/authService.js';
+import { loginAdmin, changeAdminPassword } from '../services/authService.js';
 
 export async function login(req, res, next) {
   try {
@@ -19,4 +19,22 @@ export async function me(req, res) {
       email: req.admin.email,
     },
   });
+}
+
+export async function changePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.validated;
+    const result = await changeAdminPassword(
+      req.admin._id.toString(),
+      currentPassword,
+      newPassword
+    );
+    res.json({
+      success: true,
+      message: 'رمز عبور با موفقیت تغییر کرد',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
 }

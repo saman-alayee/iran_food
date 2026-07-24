@@ -28,7 +28,7 @@ type Pagination = {
 const PAGE_SIZE = 12;
 
 const { apiFetch, apiBase } = useApi();
-const { token, admin, loadToken, clearSession } = useAuth();
+const { token, admin, loadToken, clearSession, setSession } = useAuth();
 
 const items = ref<UploadItem[]>([]);
 const pagination = ref<Pagination>({
@@ -40,6 +40,15 @@ const pagination = ref<Pagination>({
 const loading = ref(true);
 const error = ref('');
 const deletingId = ref<string | null>(null);
+const showPasswordForm = ref(false);
+const changingPassword = ref(false);
+const passwordError = ref('');
+const passwordSuccess = ref('');
+const passwordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+});
 
 const pageNumbers = computed(() => {
   const { page, pages } = pagination.value;
@@ -131,6 +140,61 @@ function logout() {
   navigateTo('/admin/login');
 }
 
+function resetPasswordForm() {
+  passwordForm.currentPassword = '';
+  passwordForm.newPassword = '';
+  passwordForm.confirmPassword = '';
+  passwordError.value = '';
+  passwordSuccess.value = '';
+}
+
+async function submitChangePassword() {
+  passwordError.value = '';
+  passwordSuccess.value = '';
+
+  if (passwordForm.newPassword.length < 8) {
+    passwordError.value = 'رمز جدید باید حداقل ۸ کاراکتر باشد';
+    return;
+  }
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    passwordError.value = 'تکرار رمز جدید با رمز جدید یکسان نیست';
+    return;
+  }
+
+  changingPassword.value = true;
+  try {
+    loadToken();
+    const res = await apiFetch<{
+      success: boolean;
+      message: string;
+      data: {
+        token: string;
+        admin: { id: string; name: string; email: string };
+      };
+    }>('/api/auth/change-password', {
+      method: 'POST',
+      token: token.value,
+      body: {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+        confirmPassword: passwordForm.confirmPassword,
+      },
+    });
+
+    setSession(res.data.token, res.data.admin);
+    passwordForm.currentPassword = '';
+    passwordForm.newPassword = '';
+    passwordForm.confirmPassword = '';
+    passwordError.value = '';
+    passwordSuccess.value = res.message || 'رمز عبور با موفقیت تغییر کرد';
+    showPasswordForm.value = false;
+  } catch (err) {
+    passwordError.value = err instanceof Error ? err.message : 'تغییر رمز ناموفق بود';
+  } finally {
+    changingPassword.value = false;
+  }
+}
+
 onMounted(() => fetchUploads(1));
 </script>
 
@@ -143,6 +207,17 @@ onMounted(() => fetchUploads(1));
           <p class="truncate text-xs text-slate-500">{{ admin?.email || 'Admin' }}</p>
         </div>
         <div class="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            class="rounded-full border border-brand-line px-4 py-2.5 text-sm transition hover:bg-brand-green-light"
+            @click="
+              showPasswordForm = !showPasswordForm;
+              passwordError = '';
+              passwordSuccess = '';
+            "
+          >
+            تغییر رمز عبور
+          </button>
           <NuxtLink
             to="/"
             class="rounded-full border border-brand-line px-4 py-2.5 text-center text-sm"
@@ -155,6 +230,70 @@ onMounted(() => fetchUploads(1));
     </header>
 
     <main class="mx-auto max-w-6xl px-4 py-8">
+      <section
+        v-if="showPasswordForm"
+        class="mb-6 rounded-3xl border border-brand-line bg-white p-4 shadow-soft sm:p-5"
+      >
+        <h2 class="mb-4 text-base font-bold text-slate-800">تغییر رمز عبور</h2>
+        <form class="grid gap-3 sm:max-w-md" @submit.prevent="submitChangePassword">
+          <label class="block text-sm">
+            <span class="mb-1 block font-semibold text-slate-600">رمز فعلی</span>
+            <input
+              v-model="passwordForm.currentPassword"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="w-full rounded-2xl border border-brand-line px-3 py-2.5 outline-none focus:border-brand-green"
+            />
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1 block font-semibold text-slate-600">رمز جدید</span>
+            <input
+              v-model="passwordForm.newPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+              class="w-full rounded-2xl border border-brand-line px-3 py-2.5 outline-none focus:border-brand-green"
+            />
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1 block font-semibold text-slate-600">تکرار رمز جدید</span>
+            <input
+              v-model="passwordForm.confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+              class="w-full rounded-2xl border border-brand-line px-3 py-2.5 outline-none focus:border-brand-green"
+            />
+          </label>
+
+          <p v-if="passwordError" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
+            {{ passwordError }}
+          </p>
+          <p v-if="passwordSuccess" class="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            {{ passwordSuccess }}
+          </p>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button type="submit" class="btn-green !py-2.5" :disabled="changingPassword">
+              {{ changingPassword ? 'در حال ذخیره...' : 'ذخیره رمز جدید' }}
+            </button>
+            <button
+              type="button"
+              class="rounded-full border border-brand-line px-4 py-2.5 text-sm"
+              @click="
+                showPasswordForm = false;
+                resetPasswordForm();
+              "
+            >
+              انصراف
+            </button>
+          </div>
+        </form>
+      </section>
+
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 class="text-base font-bold text-slate-800">تصاویر آپلود شده</h2>

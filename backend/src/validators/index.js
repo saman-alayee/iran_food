@@ -42,3 +42,26 @@ export function validateLoginBody(req, res, next) {
     next(error);
   }
 }
+
+export function validateChangePasswordBody(req, res, next) {
+  try {
+    const currentPassword = String(req.body?.currentPassword || '');
+    const newPassword = String(req.body?.newPassword || '');
+    const confirmPassword = String(req.body?.confirmPassword || '');
+
+    if (!currentPassword || currentPassword.length < 6) {
+      throw new AppError('رمز عبور فعلی معتبر نیست', 400);
+    }
+    if (!newPassword || newPassword.length < 8) {
+      throw new AppError('رمز جدید باید حداقل ۸ کاراکتر باشد', 400);
+    }
+    if (newPassword !== confirmPassword) {
+      throw new AppError('تکرار رمز جدید با رمز جدید یکسان نیست', 400);
+    }
+
+    req.validated = { currentPassword, newPassword };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
