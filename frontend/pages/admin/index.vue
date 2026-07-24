@@ -219,6 +219,12 @@ onMounted(() => fetchUploads(1));
             تغییر رمز عبور
           </button>
           <NuxtLink
+            to="/admin/content"
+            class="rounded-full border border-brand-line px-4 py-2.5 text-center text-sm"
+          >
+            مدیریت محتوا
+          </NuxtLink>
+          <NuxtLink
             to="/"
             class="rounded-full border border-brand-line px-4 py-2.5 text-center text-sm"
           >

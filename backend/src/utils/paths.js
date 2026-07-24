@@ -6,3 +6,4 @@ const __dirname = path.dirname(__filename);
 
 export const ROOT_DIR = path.resolve(__dirname, '../..');
 export const UPLOADS_DIR = path.join(ROOT_DIR, 'uploads');
+export const CMS_UPLOADS_DIR = path.join(UPLOADS_DIR, 'cms');

@@ -4,8 +4,13 @@
 
 :root {
   --brand-green: #1a7a3a;
+  --brand-green-dark: #145f2e;
+  --brand-green-light: #e6f4ea;
+  --brand-green-mid: #2e9b52;
   --brand-orange: #f5a623;
+  --brand-orange-dark: #e09000;
   --brand-cream: #f8fbf9;
+  --brand-line: #c8ddd0;
   --section-x: 1rem;
 }
 
@@ -28,6 +33,7 @@ html {
 
 body {
   @apply bg-brand-cream font-sans text-slate-800 antialiased;
+  background-color: var(--brand-cream, #f8fbf9);
   overflow-x: clip;
   background-image:
     radial-gradient(circle at 10% 8%, rgba(46, 155, 82, 0.12), transparent 32%),
@@ -86,15 +92,72 @@ body {
 }
 
 .section-title {
-  @apply text-center text-lg font-extrabold text-brand-green sm:text-xl md:text-2xl;
+  @apply text-center text-lg font-extrabold sm:text-xl md:text-2xl;
+  color: var(--brand-green, #1a7a3a);
+}
+
+@layer utilities {
+  .text-brand-green {
+    color: var(--brand-green, #1a7a3a);
+  }
+
+  .bg-brand-green {
+    background-color: var(--brand-green, #1a7a3a);
+  }
+
+  .bg-brand-green-light {
+    background-color: var(--brand-green-light, #e6f4ea);
+  }
+
+  .bg-brand-orange {
+    background-color: var(--brand-orange, #f5a623);
+  }
+
+  .bg-brand-cream {
+    background-color: var(--brand-cream, #f8fbf9);
+  }
+
+  .border-brand-line {
+    border-color: var(--brand-line, #c8ddd0);
+  }
+
+  .ring-brand-line\/60 {
+    --tw-ring-color: color-mix(in srgb, var(--brand-line, #c8ddd0) 60%, transparent);
+  }
+
+  .ring-brand-line\/70 {
+    --tw-ring-color: color-mix(in srgb, var(--brand-line, #c8ddd0) 70%, transparent);
+  }
+
+  .ring-brand-line\/80 {
+    --tw-ring-color: color-mix(in srgb, var(--brand-line, #c8ddd0) 80%, transparent);
+  }
 }
 
 .btn-green {
-  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill bg-brand-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-green-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill px-5 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60;
+  background-color: var(--brand-green, #1a7a3a);
+}
+
+.btn-green:hover {
+  background-color: var(--brand-green-dark, #145f2e);
+}
+
+.btn-green:focus-visible {
+  --tw-ring-color: color-mix(in srgb, var(--brand-green, #1a7a3a) 40%, transparent);
 }
 
 .btn-orange {
-  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-orange-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/40 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill px-5 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60;
+  background-color: var(--brand-orange, #f5a623);
+}
+
+.btn-orange:hover {
+  background-color: var(--brand-orange-dark, #e09000);
+}
+
+.btn-orange:focus-visible {
+  --tw-ring-color: color-mix(in srgb, var(--brand-orange, #f5a623) 40%, transparent);
 }
 
 .btn-stack {

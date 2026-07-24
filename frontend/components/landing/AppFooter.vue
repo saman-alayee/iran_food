@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
-
+const { siteContent, mediaUrl } = useSiteContent();
 const emit = defineEmits<{ openUpload: [] }>();
 const year = new Date().getFullYear();
+
+function scrollParticipate() {
+  const href = siteContent.value.buttons.participate.href || '#rewards';
+  if (href.startsWith('#')) {
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  window.location.href = href;
+}
 </script>
 
 <template>
@@ -15,8 +23,12 @@ const year = new Date().getFullYear();
       <div class="section-shell grid gap-8 py-8 sm:py-10 md:grid-cols-2 lg:grid-cols-3">
         <div class="text-center md:text-right">
           <div class="flex items-center justify-center gap-2 text-lg font-extrabold md:justify-start">
-            <span class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-sm">IF</span>
-            Iran Food
+            <img
+              :src="mediaUrl(siteContent.images.logo)"
+              :alt="siteContent.brand"
+              class="h-10 w-auto max-w-[120px] object-contain"
+            />
+            {{ siteContent.brand }}
           </div>
           <p class="mt-3 text-sm leading-7 text-white/80">
             {{ siteContent.supervisedBy }}
@@ -41,11 +53,21 @@ const year = new Date().getFullYear();
             </ul>
           </div>
           <div class="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
-            <a href="#rewards" class="btn-green w-full !bg-white !text-brand-green sm:w-auto">
-              مشارکت در پروژه
-            </a>
-            <button type="button" class="btn-orange w-full sm:w-auto" @click="emit('openUpload')">
-              آپلود عکس غذا
+            <button
+              v-if="siteContent.buttons.participate.enabled"
+              type="button"
+              class="btn-green w-full !bg-white !text-brand-green sm:w-auto"
+              @click="scrollParticipate"
+            >
+              {{ siteContent.buttons.participate.label }}
+            </button>
+            <button
+              v-if="siteContent.buttons.uploadFooter.enabled"
+              type="button"
+              class="btn-orange w-full sm:w-auto"
+              @click="emit('openUpload')"
+            >
+              {{ siteContent.buttons.uploadFooter.label }}
             </button>
           </div>
         </div>

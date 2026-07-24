@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
+const { siteContent, mediaUrl } = useSiteContent();
 
 const scroller = ref<HTMLElement | null>(null);
 
@@ -47,7 +47,7 @@ function scrollByDir(dir: number) {
         class="card-soft w-[min(85vw,280px)] shrink-0 snap-start overflow-hidden border border-brand-line/60 sm:w-[280px]"
       >
         <img
-          :src="event.image"
+          :src="mediaUrl(event.image)"
           :alt="event.alt"
           width="640"
           height="360"

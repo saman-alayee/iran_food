@@ -6,6 +6,9 @@ uploads/*
 !uploads/.gitkeep
 .env
 deploy/.ftp-secret.local
+docs/OPERATIONS-AND-CREDENTIALS.md
+docs/OPERATIONS-AND-CREDENTIALS.html
+docs/OPERATIONS-AND-CREDENTIALS.pdf
 *.log
 .DS_Store
 Thumbs.db

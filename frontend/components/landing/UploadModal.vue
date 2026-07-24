@@ -122,7 +122,30 @@ function close() {
             <h2 id="upload-title" class="text-lg font-extrabold text-brand-green">
               آپلود عکس غذا
             </h2>
-            <p class="mt-1 text-xs text-slate-500">فقط یک تصویر قابل ارسال است.</p>
+            <div class="mt-2 text-[11px] leading-5 text-slate-600 sm:text-xs sm:leading-6">
+              <p class="font-bold text-brand-green">شرایط عکس:</p>
+              <ul class="mt-1 space-y-0.5">
+                <li><span class="font-semibold text-slate-700">فرمت:</span> JPG</li>
+                <li>
+                  <span class="font-semibold text-slate-700">حجم:</span>
+                  ۵۰۰ کیلوبایت تا ۳ مگابایت (حداکثر ۵ مگابایت)
+                </li>
+                <li>
+                  <span class="font-semibold text-slate-700">حداقل کیفیت:</span>
+                  ۱۶۰۰×۱۶۰۰ پیکسل
+                </li>
+                <li>عکس واضح و با نور مناسب باشد.</li>
+                <li>
+                  ترجیحاً یک عکس از زاویه ۴۵ درجه و در صورت امکان یک عکس از بالا (۹۰ درجه) ارسال
+                  کنید.
+                </li>
+              </ul>
+              <p class="mb-0.5 mt-2 font-bold text-brand-green">پس‌زمینه:</p>
+              <ul class="space-y-0.5">
+                <li>بشقاب کامل داخل کادر باشد.</li>
+                <li>پس‌زمینه ساده و تمیز</li>
+              </ul>
+            </div>
           </div>
           <button
             type="button"

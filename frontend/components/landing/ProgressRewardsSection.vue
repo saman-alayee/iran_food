@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
-
-const statusMap: Record<string, { label: string; class: string }> = {
-  done: { label: 'انجام شده', class: 'bg-emerald-100 text-emerald-700' },
-  progress: { label: 'در حال انجام', class: 'bg-amber-100 text-amber-700' },
-  pending: { label: 'در انتظار', class: 'bg-slate-100 text-slate-600' },
-};
+const { siteContent } = useSiteContent();
 
 function barColor(status: string) {
   if (status === 'done') return 'bg-brand-green';
@@ -61,31 +55,6 @@ function barColor(status: string) {
             </div>
           </div>
         </div>
-
-        <ul class="space-y-2.5 sm:space-y-3">
-          <li
-            v-for="(step, idx) in siteContent.progressSteps"
-            :key="step.title"
-            class="flex flex-col gap-2 rounded-2xl bg-brand-cream px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:py-2.5"
-          >
-            <div class="flex min-w-0 items-start gap-3 sm:items-center">
-              <span
-                class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-green text-xs font-bold text-white"
-              >
-                {{ idx + 1 }}
-              </span>
-              <span class="min-w-0 text-sm font-medium leading-6 text-slate-700">
-                {{ step.title }}
-              </span>
-            </div>
-            <span
-              class="self-start rounded-full px-2.5 py-1 text-[11px] font-semibold sm:shrink-0 sm:self-auto"
-              :class="statusMap[step.status].class"
-            >
-              {{ statusMap[step.status].label }}
-            </span>
-          </li>
-        </ul>
 
         <div class="mt-5 space-y-4 sm:mt-6">
           <div v-for="bar in siteContent.progressBars" :key="bar.label">

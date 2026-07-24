@@ -23,7 +23,7 @@ export function createApp() {
     cors({
       origin: config.corsOrigin,
       credentials: true,
-      methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );

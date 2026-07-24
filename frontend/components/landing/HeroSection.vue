@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
 import { foodThumbs } from '~/composables/useFoodImages';
 
+const { siteContent, mediaUrl } = useSiteContent();
 const emit = defineEmits<{ openUpload: [] }>();
 const { isMobile, isTablet } = useBreakpoint();
 
@@ -17,8 +17,13 @@ const gridCols = computed(() => {
   return 'grid-cols-5';
 });
 
-function scrollRewards() {
-  document.getElementById('rewards')?.scrollIntoView({ behavior: 'smooth' });
+function scrollParticipate() {
+  const href = siteContent.value.buttons.participate.href || '#rewards';
+  if (href.startsWith('#')) {
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  window.location.href = href;
 }
 </script>
 
@@ -28,14 +33,14 @@ function scrollRewards() {
       <div class="order-2 lg:order-1">
         <div class="mb-4 sm:mb-5">
           <img
-            src="/images/iran-food-logo.png"
-            alt="Iran Food Dataset"
+            :src="mediaUrl(siteContent.images.logo)"
+            :alt="siteContent.brand"
             width="280"
             height="80"
             class="mb-3 h-14 w-auto max-w-[280px] object-contain object-right sm:mb-4 sm:h-16 sm:max-w-[320px] lg:h-[72px]"
           />
           <h1 class="text-3xl font-extrabold tracking-tight text-brand-green sm:text-4xl lg:text-5xl">
-            Iran Food
+            {{ siteContent.brand }}
           </h1>
           <p class="mt-2 text-sm font-semibold leading-7 text-slate-700 sm:text-base lg:text-lg">
             {{ siteContent.tagline }}
@@ -73,19 +78,21 @@ function scrollRewards() {
         </ul>
 
         <div class="btn-stack">
-          <button type="button" class="btn-green" @click="scrollRewards">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path
-                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-              />
-            </svg>
-            مشارکت در پروژه
+          <button
+            v-if="siteContent.buttons.participate.enabled"
+            type="button"
+            class="btn-green"
+            @click="scrollParticipate"
+          >
+            {{ siteContent.buttons.participate.label }}
           </button>
-          <button type="button" class="btn-orange" @click="emit('openUpload')">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
-            </svg>
-            آپلود عکس غذا
+          <button
+            v-if="siteContent.buttons.uploadHero.enabled"
+            type="button"
+            class="btn-orange"
+            @click="emit('openUpload')"
+          >
+            {{ siteContent.buttons.uploadHero.label }}
           </button>
         </div>
       </div>

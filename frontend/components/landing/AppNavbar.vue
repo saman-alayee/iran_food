@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { siteContent } = useSiteContent();
+const { siteContent, mediaUrl } = useSiteContent();
 const emit = defineEmits<{ openUpload: [] }>();
 
 const menuOpen = ref(false);
@@ -41,7 +41,7 @@ onBeforeUnmount(() => {
         @click="closeMenu"
       >
         <img
-          src="/images/iran-food-logo.png"
+          :src="mediaUrl(siteContent.images.logo)"
           alt="Iran Food"
           width="140"
           height="48"
@@ -62,7 +62,7 @@ onBeforeUnmount(() => {
       <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <div class="hidden items-center gap-1.5 text-white/90 md:flex">
           <a
-            href="https://instagram.com"
+            :href="siteContent.social.instagram"
             target="_blank"
             rel="noopener noreferrer"
             class="grid h-8 w-8 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
             </svg>
           </a>
           <a
-            href="https://t.me"
+            :href="siteContent.social.telegram"
             target="_blank"
             rel="noopener noreferrer"
             class="grid h-8 w-8 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
@@ -101,11 +101,12 @@ onBeforeUnmount(() => {
         </div>
 
         <button
+          v-if="siteContent.buttons.uploadNav.enabled"
           type="button"
           class="btn-orange !min-h-9 !px-3 !py-1.5 text-xs lg:!px-4"
           @click="openUpload"
         >
-          <span class="hidden sm:inline">آپلود عکس</span>
+          <span class="hidden sm:inline">{{ siteContent.buttons.uploadNav.label }}</span>
           <span class="sm:hidden">آپلود</span>
         </button>
 

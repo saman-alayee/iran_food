@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
+const { siteContent } = useSiteContent();
 </script>
 
 <template>

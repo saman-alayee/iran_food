@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { siteContent } from '~/composables/useSiteContent';
+const { siteContent, mediaUrl } = useSiteContent();
 
-const target = new Date();
-target.setDate(target.getDate() + 45);
-target.setHours(target.getHours() + 12);
+const target = computed(() => {
+  if (siteContent.value.countdownTarget) {
+    const parsed = new Date(siteContent.value.countdownTarget);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  const fallback = new Date();
+  fallback.setDate(fallback.getDate() + 45);
+  fallback.setHours(fallback.getHours() + 12);
+  return fallback;
+});
 
 const now = ref(Date.now());
 let timer: ReturnType<typeof setInterval> | null = null;
 
 const remaining = computed(() => {
-  const diff = Math.max(0, target.getTime() - now.value);
+  const diff = Math.max(0, target.value.getTime() - now.value);
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
   return { days, hours };
@@ -29,11 +36,11 @@ onBeforeUnmount(() => {
 <template>
   <section class="section-shell pb-8 sm:pb-10">
     <div
-      class="card-soft grid items-stretch gap-4 overflow-hidden p-4 sm:gap-6 sm:p-6 md:grid-cols-2 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)]"
+      class="card-soft grid items-stretch gap-4 overflow-hidden p-4 sm:gap-6 sm:p-6 md:grid-cols-2 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(220px,280px)]"
     >
       <div class="overflow-hidden rounded-2xl md:row-span-1 lg:row-auto">
         <img
-          src="/images/coming-soon-hero.png"
+          :src="mediaUrl(siteContent.images.countdownHero)"
           alt="زن جوان با بشقاب غذای ایرانی — ایران فود"
           width="640"
           height="480"
@@ -50,7 +57,7 @@ onBeforeUnmount(() => {
         <ul class="mt-3 space-y-2 text-sm text-slate-600 sm:mt-4">
           <li
             v-for="(item, idx) in siteContent.countdownItems"
-            :key="item"
+            :key="`${idx}-${item}`"
             class="flex items-start justify-center gap-2 md:justify-start"
           >
             <span
@@ -64,31 +71,30 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="flex flex-col items-center justify-center md:col-span-2 lg:col-span-1">
-        <p class="mb-3 text-center text-xs font-medium text-slate-500 sm:text-sm">
+        <p class="mb-4 text-center text-sm font-bold text-brand-green sm:text-base">
           زمان باقی‌مانده تا انتشار
         </p>
-        <div class="flex items-center justify-center gap-2 sm:gap-3">
+        <div class="flex items-center justify-center gap-3 sm:gap-4">
           <div
-            class="flex min-w-[88px] flex-col items-center rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-brand-line/70 sm:min-w-[96px] sm:px-6 sm:py-5"
+            class="flex min-w-[104px] flex-col items-center rounded-3xl bg-brand-green px-6 py-5 shadow-md sm:min-w-[120px] sm:px-7 sm:py-6"
           >
-            <span class="text-4xl font-extrabold leading-none text-brand-green sm:text-5xl">
-              {{ remaining.days }}
-            </span>
-            <span class="mt-2 text-sm font-semibold text-brand-green sm:text-base">روز</span>
-          </div>
-
-          <span
-            class="pb-5 text-3xl font-bold leading-none text-brand-green sm:text-4xl"
-            aria-hidden="true"
-          >:</span>
-
-          <div
-            class="flex min-w-[88px] flex-col items-center rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-brand-line/70 sm:min-w-[96px] sm:px-6 sm:py-5"
-          >
-            <span class="text-4xl font-extrabold leading-none text-brand-green sm:text-5xl">
+            <span class="text-5xl font-extrabold leading-none text-white sm:text-6xl">
               {{ remaining.hours }}
             </span>
-            <span class="mt-2 text-sm font-semibold text-brand-green sm:text-base">ساعت</span>
+            <span class="mt-2 text-base font-bold text-white/95 sm:text-lg">ساعت</span>
+          </div>
+
+          <span class="pb-6 text-4xl font-extrabold leading-none text-brand-green sm:text-5xl" aria-hidden="true">
+            :
+          </span>
+
+          <div
+            class="flex min-w-[104px] flex-col items-center rounded-3xl bg-brand-green px-6 py-5 shadow-md sm:min-w-[120px] sm:px-7 sm:py-6"
+          >
+            <span class="text-5xl font-extrabold leading-none text-white sm:text-6xl">
+              {{ remaining.days }}
+            </span>
+            <span class="mt-2 text-base font-bold text-white/95 sm:text-lg">روز</span>
           </div>
         </div>
       </div>
