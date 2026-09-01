@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { siteContent, mediaUrl } = useSiteContent();
+const { siteContent } = useSiteContent();
 const emit = defineEmits<{ openUpload: [] }>();
 
 const menuOpen = ref(false);
@@ -13,6 +13,10 @@ function openUpload() {
   emit('openUpload');
 }
 
+function navTo(href: string, e: MouseEvent) {
+  onNavClick(href, e);
+  closeMenu();
+}
 watch(
   () => menuOpen.value,
   (open) => {
@@ -30,69 +34,89 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <header class="section-shell sticky top-0 z-40 bg-brand-cream/95 pt-3 backdrop-blur-sm sm:pt-4">
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-brand-green shadow-nav">
     <nav
-      class="flex items-center justify-between gap-2 rounded-2xl bg-brand-green px-3 py-2 text-white shadow-nav sm:gap-3 sm:rounded-pill sm:px-4 sm:py-2.5 lg:px-5"
+      class="section-shell flex items-center justify-between gap-3 py-3 sm:py-3.5"
       aria-label="منوی اصلی"
     >
       <a
         href="#home"
-        class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl bg-white/95 px-2 py-1 transition hover:bg-white"
+        class="shrink-0 text-white"
         @click="closeMenu"
       >
-        <img
-          :src="mediaUrl(siteContent.images.logo)"
-          alt="Iran Food"
-          width="140"
-          height="48"
-          class="h-7 w-auto max-w-[120px] shrink-0 object-contain sm:h-8 sm:max-w-[132px]"
-        />
+        <LandingBrandLogo />
       </a>
 
       <ul
-        class="hidden flex-1 items-center justify-center gap-3 px-2 text-xs font-medium lg:flex xl:gap-5 xl:text-sm"
+        class="hidden flex-1 items-center justify-center gap-4 text-xs font-medium text-white/95 lg:flex xl:gap-6 xl:text-sm"
       >
         <li v-for="item in siteContent.nav" :key="item.href">
-          <a :href="item.href" class="whitespace-nowrap transition hover:text-white/85">
+          <a :href="item.href" class="whitespace-nowrap transition hover:text-white" @click="navTo(item.href, $event)">
             {{ item.label }}
           </a>
         </li>
       </ul>
 
-      <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <div class="hidden items-center gap-1.5 text-white/90 md:flex">
+      <div class="flex shrink-0 items-center gap-1 sm:gap-1.5">
+        <a
+          href="#about"
+          class="hidden h-8 w-8 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:grid"
+          aria-label="درباره ما"
+          @click="navTo('#about', $event)"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3c4 3.2 6 7 6 11a6 6 0 1 1-12 0c0-4 2-7.8 6-11z" />
+          </svg>
+        </a>
+        <div class="hidden items-center gap-1 text-white/90 md:flex">
           <a
-            :href="siteContent.social.instagram"
+            v-if="siteContent.contact.instagram"
+            :href="siteContent.contact.instagram"
             target="_blank"
             rel="noopener noreferrer"
-            class="grid h-8 w-8 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
+            class="grid h-8 w-8 place-items-center rounded-full transition hover:bg-white/15"
             aria-label="اینستاگرام"
           >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.9a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"
               />
             </svg>
           </a>
           <a
-            :href="siteContent.social.telegram"
+            v-if="siteContent.contact.telegram"
+            :href="siteContent.contact.telegram"
             target="_blank"
             rel="noopener noreferrer"
-            class="grid h-8 w-8 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
+            class="grid h-8 w-8 place-items-center rounded-full transition hover:bg-white/15"
             aria-label="تلگرام"
           >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M9.04 15.3 8.9 19.2c.4 0 .57-.17.78-.37l1.87-1.8 3.88 2.85c.71.39 1.22.19 1.41-.66l2.56-12.03c.23-1.03-.37-1.43-1.07-1.18L4.3 10.3c-1 .39-.98.95-.17 1.2l4.1 1.28 9.52-6c.45-.27.86-.12.52.15"
               />
             </svg>
           </a>
           <a
+            v-if="siteContent.contact.linkedin"
+            :href="siteContent.contact.linkedin"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="grid h-8 w-8 place-items-center rounded-full transition hover:bg-white/15"
+            aria-label="لینکدین"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6.5 8.5a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5zM4.75 20.25V9.5H8.25v10.75H4.75zM10 9.5h3.38v1.45h.05c.47-.88 1.62-1.8 3.34-1.8 3.57 0 4.23 2.35 4.23 5.41v5.69H17.5v-5.05c0-1.2-.02-2.74-1.67-2.74-1.67 0-1.93 1.31-1.93 2.66v5.13H10V9.5z"
+              />
+            </svg>
+          </a>
+          <a
             :href="`mailto:${siteContent.contact.email}`"
-            class="grid h-8 w-8 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
+            class="grid h-8 w-8 place-items-center rounded-full transition hover:bg-white/15"
             aria-label="ایمیل"
           >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"
               />
@@ -101,21 +125,11 @@ onBeforeUnmount(() => {
         </div>
 
         <button
-          v-if="siteContent.buttons.uploadNav.enabled"
           type="button"
-          class="btn-orange !min-h-9 !px-3 !py-1.5 text-xs lg:!px-4"
-          @click="openUpload"
-        >
-          <span class="hidden sm:inline">{{ siteContent.buttons.uploadNav.label }}</span>
-          <span class="sm:hidden">آپلود</span>
-        </button>
-
-        <button
-          type="button"
-          class="grid h-9 w-9 place-items-center rounded-full bg-white/10 lg:hidden"
+          class="grid h-9 w-9 place-items-center rounded-full text-white lg:hidden"
           :aria-expanded="menuOpen"
           aria-controls="mobile-menu"
-          aria-label="باز کردن منو"
+          aria-label="منو"
           @click="menuOpen = !menuOpen"
         >
           <svg v-if="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -130,54 +144,28 @@ onBeforeUnmount(() => {
 
     <Transition
       enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
       leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
-      <div
-        v-if="menuOpen"
-        id="mobile-menu"
-        class="mt-2 overflow-hidden rounded-2xl border border-brand-line bg-white shadow-soft lg:hidden"
-      >
-        <ul class="divide-y divide-brand-line/60">
+      <div v-if="menuOpen" id="mobile-menu" class="border-t border-white/10 bg-brand-green lg:hidden">
+        <ul class="section-shell divide-y divide-white/10 py-1">
           <li v-for="item in siteContent.nav" :key="`m-${item.href}`">
             <a
               :href="item.href"
-              class="block px-4 py-3.5 text-sm font-medium text-brand-green"
-              @click="closeMenu"
+              class="block py-3.5 text-sm font-medium text-white"
+              @click="navTo(item.href, $event)"
             >
               {{ item.label }}
             </a>
           </li>
         </ul>
-        <div class="flex gap-2 border-t border-brand-line/60 p-3">
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="grid h-10 w-10 place-items-center rounded-full bg-brand-green-light text-brand-green"
-            aria-label="اینستاگرام"
-          >
-            IG
-          </a>
-          <a
-            href="https://t.me"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="grid h-10 w-10 place-items-center rounded-full bg-brand-green-light text-brand-green"
-            aria-label="تلگرام"
-          >
-            TG
-          </a>
-          <a
-            :href="`mailto:${siteContent.contact.email}`"
-            class="grid h-10 w-10 place-items-center rounded-full bg-brand-green-light text-brand-green"
-            aria-label="ایمیل"
-          >
-            @
-          </a>
+        <div class="section-shell flex gap-2 border-t border-white/10 py-3">
+          <button type="button" class="btn-orange flex-1 text-xs" @click="openUpload">
+            {{ siteContent.uploadButtonLabel }}
+          </button>
         </div>
       </div>
     </Transition>

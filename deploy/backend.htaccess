@@ -1,0 +1,30 @@
+
+# BEGIN cPanel-generated php ini directives, do not edit
+# Manual editing of this file may result in unexpected behavior.
+# To make changes to this file, use the cPanel MultiPHP INI Editor (Home >> Software >> MultiPHP INI Editor)
+# For more information, read our documentation (https://go.cpanel.net/EA4ModifyINI)
+<IfModule php8_module>
+   php_flag log_errors Off
+   php_flag display_errors Off
+</IfModule>
+<IfModule lsapi_module>
+   php_flag log_errors Off
+   php_flag display_errors Off
+</IfModule>
+# END cPanel-generated php ini directives, do not edit
+
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/zjdekntt/iran_food/backend"
+PassengerBaseURI "/"
+PassengerNodejs "/home/zjdekntt/nodevenv/iran_food/backend/20/bin/node"
+PassengerAppType node
+PassengerStartupFile app.cjs
+PassengerLogLevel 1
+PassengerAppLogFile "/dev/null"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+SetEnv NODE_ENV production
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

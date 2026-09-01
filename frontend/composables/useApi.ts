@@ -34,7 +34,12 @@ export function useApi() {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(data?.message || 'خطا در ارتباط با سرور');
+      const message = data?.message || 'خطا در ارتباط با سرور';
+      if (res.status === 401 && import.meta.client) {
+        const { clearSession } = useAuth();
+        clearSession();
+      }
+      throw new Error(message);
     }
     return data as T;
   }

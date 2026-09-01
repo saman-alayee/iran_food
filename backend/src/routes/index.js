@@ -1,18 +1,22 @@
 import { Router } from 'express';
+import { pingDatabase } from '../config/db.js';
 import authRoutes from './authRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
 import contentRoutes from './contentRoutes.js';
-import mediaRoutes from './mediaRoutes.js';
 
 const router = Router();
 
-router.get('/health', (_req, res) => {
-  res.json({ success: true, message: 'OK' });
+router.get('/health', async (_req, res) => {
+  try {
+    await pingDatabase();
+    res.json({ success: true, message: 'OK', db: 'mysql' });
+  } catch {
+    res.status(503).json({ success: false, message: 'Database unavailable', db: 'mysql' });
+  }
 });
 
 router.use('/auth', authRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/content', contentRoutes);
-router.use('/media', mediaRoutes);
 
 export default router;

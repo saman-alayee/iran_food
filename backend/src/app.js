@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
 import config from './config/index.js';
 import routes from './routes/index.js';
 import { apiLimiter } from './middleware/rateLimiters.js';
@@ -19,9 +18,24 @@ export function createApp() {
     })
   );
 
+  const allowedOrigins = new Set(
+    String(process.env.CORS_ORIGIN || config.corsOrigin)
+      .split(',')
+      .map((o) => o.trim())
+      .filter(Boolean)
+  );
+  allowedOrigins.add('https://iranfoodd.ir');
+  allowedOrigins.add('https://www.iranfoodd.ir');
+
   app.use(
     cors({
-      origin: config.corsOrigin,
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.has(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(new Error('Not allowed by CORS'));
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
@@ -30,7 +44,6 @@ export function createApp() {
 
   app.use(express.json({ limit: '100kb' }));
   app.use(express.urlencoded({ extended: false, limit: '100kb' }));
-  app.use(mongoSanitize());
   app.use('/api', apiLimiter);
 
   app.use(

@@ -1,13 +1,19 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Upload } from '../models/Upload.js';
+import {
+  createUploadRecord,
+  deleteUploadById,
+  findUploadById,
+  listUploadRecords,
+  countUploads,
+} from '../models/Upload.js';
 import { AppError } from '../utils/AppError.js';
 import { UPLOADS_DIR } from '../utils/paths.js';
 
 export async function createUpload({ name, phone, file }) {
   const relativePath = path.posix.join('uploads', file.filename);
 
-  const doc = await Upload.create({
+  return createUploadRecord({
     name,
     phone: phone || '',
     originalName: file.originalname,
@@ -16,8 +22,6 @@ export async function createUpload({ name, phone, file }) {
     size: file.size,
     path: relativePath,
   });
-
-  return doc;
 }
 
 export async function listUploads({ page = 1, limit = 12 } = {}) {
@@ -26,8 +30,8 @@ export async function listUploads({ page = 1, limit = 12 } = {}) {
   const skip = (safePage - 1) * safeLimit;
 
   const [items, total] = await Promise.all([
-    Upload.find().sort({ createdAt: -1 }).skip(skip).limit(safeLimit).lean(),
-    Upload.countDocuments(),
+    listUploadRecords({ skip, limit: safeLimit }),
+    countUploads(),
   ]);
 
   return {
@@ -42,7 +46,7 @@ export async function listUploads({ page = 1, limit = 12 } = {}) {
 }
 
 export async function deleteUpload(id) {
-  const doc = await Upload.findById(id);
+  const doc = await findUploadById(id);
   if (!doc) {
     throw new AppError('رکورد یافت نشد', 404);
   }
@@ -54,6 +58,6 @@ export async function deleteUpload(id) {
     // file may already be missing
   }
 
-  await doc.deleteOne();
+  await deleteUploadById(id);
   return true;
 }

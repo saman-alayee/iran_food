@@ -1,6 +1,6 @@
 import { AppError } from '../utils/AppError.js';
 import { verifyToken } from '../utils/jwt.js';
-import { Admin } from '../models/Admin.js';
+import { findAdminById } from '../models/Admin.js';
 
 export async function requireAuth(req, res, next) {
   try {
@@ -12,7 +12,7 @@ export async function requireAuth(req, res, next) {
     }
 
     const decoded = verifyToken(token);
-    const admin = await Admin.findById(decoded.sub).select('_id email name');
+    const admin = await findAdminById(decoded.sub);
 
     if (!admin) {
       throw new AppError('کاربر معتبر نیست', 401);

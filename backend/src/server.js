@@ -16,7 +16,9 @@ async function bootstrap() {
 
   const app = createApp();
   app.listen(config.port, () => {
-    console.log(`API running on http://localhost:${config.port}`);
+    if (config.nodeEnv !== 'production') {
+      console.log(`API running on http://localhost:${config.port}`);
+    }
   });
 }
 

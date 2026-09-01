@@ -1,28 +1,32 @@
-import mongoose from 'mongoose';
+import { getPool } from '../config/db.js';
+import { mapAdminRow } from './adminRow.js';
 
-const adminSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 100,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-      maxlength: 150,
-    },
-    passwordHash: {
-      type: String,
-      required: true,
-      select: false,
-    },
-  },
-  { timestamps: true }
-);
+export async function findAdminByEmail(email, { includePassword = false } = {}) {
+  const [rows] = await getPool().query(
+    'SELECT * FROM admins WHERE email = ? LIMIT 1',
+    [email.toLowerCase()]
+  );
+  return mapAdminRow(rows[0], { includePassword });
+}
 
-export const Admin = mongoose.model('Admin', adminSchema);
+export async function findAdminById(id) {
+  const [rows] = await getPool().query('SELECT * FROM admins WHERE id = ? LIMIT 1', [
+    Number(id),
+  ]);
+  return mapAdminRow(rows[0]);
+}
+
+export async function createAdmin({ name, email, passwordHash }) {
+  try {
+    const [result] = await getPool().query(
+      'INSERT INTO admins (name, email, password_hash) VALUES (?, ?, ?)',
+      [name, email.toLowerCase(), passwordHash]
+    );
+    return findAdminById(result.insertId);
+  } catch (error) {
+    if (error?.code === 'ER_DUP_ENTRY') {
+      error.code = 11000;
+    }
+    throw error;
+  }
+}

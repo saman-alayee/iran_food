@@ -22,8 +22,7 @@ export default defineNuxtConfig({
           content:
             'Iran Food اولین دیتاست تصویری استاندارد و قابل توسعه از غذاهای ایرانی؛ پژوهش زیر نظر دانشگاه علوم پزشکی تهران.',
         },
-        { name: 'theme-color', content: '#1A7A3A' },
-        { 'http-equiv': 'Content-Security-Policy', content: 'upgrade-insecure-requests' },
+        { name: 'theme-color', content: '#0B5C3B' },
         { name: 'robots', content: 'index, follow' },
         { property: 'og:type', content: 'website' },
         { property: 'og:locale', content: 'fa_IR' },
@@ -71,7 +70,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? '/dataset/v1',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:4000',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     },
   },
@@ -90,7 +89,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true },
-    '/admin/**': { ssr: false, prerender: true, robots: false },
+    '/admin/**': { ssr: false, robots: false },
   },
 });

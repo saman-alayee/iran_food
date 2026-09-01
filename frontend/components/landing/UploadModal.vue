@@ -1,8 +1,17 @@
 <script setup lang="ts">
-const props = defineProps<{ open: boolean }>();
-const emit = defineEmits<{ close: []; success: [] }>();
+import { assetUrl } from '~/composables/useSiteContent';
 
-const { apiFetch } = useApi();
+const props = defineProps<{ open: boolean }>();const emit = defineEmits<{ close: []; success: [] }>();
+
+const { apiFetch, apiBase } = useApi();
+const { siteContent } = useSiteContent();
+
+const guideMediaUrl = computed(() =>
+  assetUrl(siteContent.value.uploadGuideVideoUrl || '', apiBase)
+);
+const guidePosterUrl = computed(() =>
+  assetUrl(siteContent.value.uploadGuideVideoPoster || '', apiBase)
+);
 
 const name = ref('');
 const phone = ref('');
@@ -11,6 +20,16 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
+
+const isVideoGuide = computed(() =>
+  /\.(mp4|webm|ogg)(\?|$)/i.test(siteContent.value.uploadGuideVideoUrl || '')
+);
+
+const showGuide = computed(
+  () =>
+    !!siteContent.value.uploadGuideTitle &&
+    (!!guideMediaUrl.value || (siteContent.value.uploadPhotoSpecs?.length ?? 0) > 0)
+);
 
 const MAX_MB = 5;
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
@@ -93,7 +112,13 @@ async function submit() {
     if (fileInput.value) fileInput.value.value = '';
     emit('success');
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'ارسال ناموفق بود.';
+    const msg = err instanceof Error ? err.message : 'ارسال ناموفق بود.';
+    if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('Load failed')) {
+      error.value =
+        'ارتباط با سرور API برقرار نشد. اگر مرورگر «Not secure» نشان می‌دهد، ابتدا SSL را در cPanel (AutoSSL) فعال کنید، یا یک‌بار https://api.iranfoodd.ir/api/health را باز کنید و گواهی را تأیید کنید، سپس دوباره تلاش کنید.';
+    } else {
+      error.value = msg;
+    }
   } finally {
     loading.value = false;
   }
@@ -120,32 +145,9 @@ function close() {
         <div class="mb-5 flex items-start justify-between gap-3">
           <div>
             <h2 id="upload-title" class="text-lg font-extrabold text-brand-green">
-              آپلود عکس غذا
+              {{ siteContent.uploadModalTitle }}
             </h2>
-            <div class="mt-2 text-[11px] leading-5 text-slate-600 sm:text-xs sm:leading-6">
-              <p class="font-bold text-brand-green">شرایط عکس:</p>
-              <ul class="mt-1 space-y-0.5">
-                <li><span class="font-semibold text-slate-700">فرمت:</span> JPG</li>
-                <li>
-                  <span class="font-semibold text-slate-700">حجم:</span>
-                  ۵۰۰ کیلوبایت تا ۳ مگابایت (حداکثر ۵ مگابایت)
-                </li>
-                <li>
-                  <span class="font-semibold text-slate-700">حداقل کیفیت:</span>
-                  ۱۶۰۰×۱۶۰۰ پیکسل
-                </li>
-                <li>عکس واضح و با نور مناسب باشد.</li>
-                <li>
-                  ترجیحاً یک عکس از زاویه ۴۵ درجه و در صورت امکان یک عکس از بالا (۹۰ درجه) ارسال
-                  کنید.
-                </li>
-              </ul>
-              <p class="mb-0.5 mt-2 font-bold text-brand-green">پس‌زمینه:</p>
-              <ul class="space-y-0.5">
-                <li>بشقاب کامل داخل کادر باشد.</li>
-                <li>پس‌زمینه ساده و تمیز</li>
-              </ul>
-            </div>
+            <p class="mt-1 text-xs text-slate-500">{{ siteContent.uploadModalSubtitle }}</p>
           </div>
           <button
             type="button"
@@ -201,6 +203,40 @@ function close() {
             <p v-if="file" class="mt-2 text-xs text-slate-500">{{ file.name }}</p>
           </div>
 
+          <div v-if="showGuide" class="rounded-2xl border border-brand-line/70 bg-brand-cream/60 p-4">
+            <h3 class="text-sm font-bold text-brand-green">{{ siteContent.uploadGuideTitle }}</h3>
+            <p v-if="isVideoGuide" class="mt-1 text-xs text-slate-500">
+              ویدیوی راهنمای مشخصات تصویربرداری
+            </p>
+            <div v-if="guideMediaUrl" class="mt-3 overflow-hidden rounded-xl bg-black/5">
+              <video
+                v-if="isVideoGuide"
+                class="h-48 w-full object-cover sm:h-56"
+                controls
+                playsinline
+                :poster="guidePosterUrl || undefined"
+                :src="guideMediaUrl"
+              />
+              <img
+                v-else
+                :src="guideMediaUrl"
+                :alt="siteContent.uploadGuideTitle"
+                class="h-40 w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <ul v-if="siteContent.uploadPhotoSpecs?.length" class="mt-3 space-y-2">
+              <li
+                v-for="spec in siteContent.uploadPhotoSpecs"
+                :key="spec.label"
+                class="rounded-xl bg-white px-3 py-2 text-xs leading-6 text-slate-700"
+              >
+                <span class="font-bold text-brand-green">{{ spec.label }}:</span>
+                {{ spec.value }}
+              </li>
+            </ul>
+          </div>
+
           <p v-if="error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
             {{ error }}
           </p>
@@ -209,7 +245,7 @@ function close() {
           </p>
 
           <button type="submit" class="btn-orange w-full" :disabled="loading">
-            {{ loading ? 'در حال ارسال...' : 'ارسال' }}
+            {{ loading ? 'در حال ارسال...' : siteContent.uploadSubmitLabel || 'ارسال' }}
           </button>
         </form>
       </div>

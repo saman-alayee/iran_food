@@ -1,0 +1,8 @@
+# Reverse proxy for Node.js backend (when Setup Node.js App is enabled)
+# Replace PORT with the port assigned by cPanel Node.js Selector
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ http://127.0.0.1:PORT/$1 [P,L]
+</IfModule>

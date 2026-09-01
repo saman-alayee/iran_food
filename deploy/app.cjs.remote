@@ -1,0 +1,633 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// app.js
+var app_exports = {};
+__export(app_exports, {
+  default: () => app_default
+});
+module.exports = __toCommonJS(app_exports);
+var import_config5 = require("dotenv/config");
+var import_fs2 = __toESM(require("fs"), 1);
+
+// src/app.js
+var import_express4 = __toESM(require("express"), 1);
+var import_cors = __toESM(require("cors"), 1);
+var import_helmet = __toESM(require("helmet"), 1);
+var import_express_mongo_sanitize = __toESM(require("express-mongo-sanitize"), 1);
+
+// src/config/index.js
+function resolveMongoDbUri() {
+  const raw = (process.env.MONGODB_URI || "").trim();
+  const placeholder = !raw || raw.includes("REPLACE_WITH") || raw.includes("USER:PASSWORD") || raw.includes("CHANGE_ME");
+  if (placeholder) {
+    return "mongodb://127.0.0.1:27017/iran-food";
+  }
+  if (!/^mongodb(\+srv)?:\/\//i.test(raw)) {
+    return "mongodb://127.0.0.1:27017/iran-food";
+  }
+  return raw;
+}
+var config_default = {
+  port: Number(process.env.PORT) || 4e3,
+  nodeEnv: process.env.NODE_ENV || "development",
+  mongodbUri: resolveMongoDbUri(),
+  jwtSecret: process.env.JWT_SECRET || "dev-secret-change-me",
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1d",
+  corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
+  uploadMaxSizeMb: Number(process.env.UPLOAD_MAX_SIZE_MB) || 5,
+  admin: {
+    email: process.env.ADMIN_EMAIL || "admin@iranfood.ir",
+    password: process.env.ADMIN_PASSWORD || "Admin@123456",
+    name: process.env.ADMIN_NAME || "Admin"
+  }
+};
+
+// src/routes/index.js
+var import_express3 = require("express");
+
+// src/routes/authRoutes.js
+var import_express = require("express");
+
+// src/services/authService.js
+var import_bcryptjs = __toESM(require("bcryptjs"), 1);
+
+// src/models/Admin.js
+var import_mongoose = __toESM(require("mongoose"), 1);
+var adminSchema = new import_mongoose.default.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 150
+    },
+    passwordHash: {
+      type: String,
+      required: true,
+      select: false
+    }
+  },
+  { timestamps: true }
+);
+var Admin = import_mongoose.default.model("Admin", adminSchema);
+
+// src/utils/AppError.js
+var AppError = class extends Error {
+  constructor(message, statusCode = 400, details = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+    this.isOperational = true;
+  }
+};
+
+// src/utils/jwt.js
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+function signToken(payload) {
+  return import_jsonwebtoken.default.sign(payload, config_default.jwtSecret, {
+    expiresIn: config_default.jwtExpiresIn
+  });
+}
+function verifyToken(token) {
+  return import_jsonwebtoken.default.verify(token, config_default.jwtSecret);
+}
+
+// src/services/authService.js
+async function ensureDefaultAdmin() {
+  const existing = await Admin.findOne({ email: config_default.admin.email });
+  if (existing) return existing;
+  try {
+    const passwordHash = await import_bcryptjs.default.hash(config_default.admin.password, 12);
+    return await Admin.create({
+      name: config_default.admin.name,
+      email: config_default.admin.email,
+      passwordHash
+    });
+  } catch (error) {
+    if (error?.code === 11e3) {
+      const again = await Admin.findOne({ email: config_default.admin.email });
+      if (again) return again;
+    }
+    throw error;
+  }
+}
+async function loginAdmin(email, password) {
+  const admin = await Admin.findOne({ email }).select("+passwordHash");
+  if (!admin) {
+    throw new AppError("\u0627\u06CC\u0645\u06CC\u0644 \u06CC\u0627 \u0631\u0645\u0632 \u0639\u0628\u0648\u0631 \u0627\u0634\u062A\u0628\u0627\u0647 \u0627\u0633\u062A", 401);
+  }
+  const ok = await import_bcryptjs.default.compare(password, admin.passwordHash);
+  if (!ok) {
+    throw new AppError("\u0627\u06CC\u0645\u06CC\u0644 \u06CC\u0627 \u0631\u0645\u0632 \u0639\u0628\u0648\u0631 \u0627\u0634\u062A\u0628\u0627\u0647 \u0627\u0633\u062A", 401);
+  }
+  const token = signToken({ sub: admin._id.toString(), role: "admin" });
+  return {
+    token,
+    admin: {
+      id: admin._id,
+      name: admin.name,
+      email: admin.email
+    }
+  };
+}
+
+// src/controllers/authController.js
+async function login(req, res, next) {
+  try {
+    const { email, password } = req.validated;
+    const result = await loginAdmin(email, password);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+async function me(req, res) {
+  res.json({
+    success: true,
+    data: {
+      id: req.admin._id,
+      name: req.admin.name,
+      email: req.admin.email
+    }
+  });
+}
+
+// src/middleware/auth.js
+async function requireAuth(req, res, next) {
+  try {
+    const header = req.headers.authorization || "";
+    const [scheme, token] = header.split(" ");
+    if (scheme !== "Bearer" || !token) {
+      throw new AppError("\u0627\u062D\u0631\u0627\u0632 \u0647\u0648\u06CC\u062A \u0644\u0627\u0632\u0645 \u0627\u0633\u062A", 401);
+    }
+    const decoded = verifyToken(token);
+    const admin = await Admin.findById(decoded.sub).select("_id email name");
+    if (!admin) {
+      throw new AppError("\u06A9\u0627\u0631\u0628\u0631 \u0645\u0639\u062A\u0628\u0631 \u0646\u06CC\u0633\u062A", 401);
+    }
+    req.admin = admin;
+    next();
+  } catch (error) {
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return next(new AppError("\u062A\u0648\u06A9\u0646 \u0646\u0627\u0645\u0639\u062A\u0628\u0631 \u06CC\u0627 \u0645\u0646\u0642\u0636\u06CC \u0634\u062F\u0647 \u0627\u0633\u062A", 401));
+    }
+    next(error);
+  }
+}
+
+// src/middleware/rateLimiters.js
+var import_express_rate_limit = __toESM(require("express-rate-limit"), 1);
+var apiLimiter = (0, import_express_rate_limit.default)({
+  windowMs: 15 * 60 * 1e3,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "\u062A\u0639\u062F\u0627\u062F \u062F\u0631\u062E\u0648\u0627\u0633\u062A\u200C\u0647\u0627 \u0628\u06CC\u0634 \u0627\u0632 \u062D\u062F \u0645\u062C\u0627\u0632 \u0627\u0633\u062A. \u06A9\u0645\u06CC \u0628\u0639\u062F \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u0644\u0627\u0634 \u06A9\u0646\u06CC\u062F."
+  }
+});
+var authLimiter = (0, import_express_rate_limit.default)({
+  windowMs: 15 * 60 * 1e3,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "\u062A\u0644\u0627\u0634\u200C\u0647\u0627\u06CC \u0648\u0631\u0648\u062F \u0628\u06CC\u0634 \u0627\u0632 \u062D\u062F \u0645\u062C\u0627\u0632 \u0627\u0633\u062A. \u06A9\u0645\u06CC \u0628\u0639\u062F \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u0644\u0627\u0634 \u06A9\u0646\u06CC\u062F."
+  }
+});
+var uploadLimiter = (0, import_express_rate_limit.default)({
+  windowMs: 60 * 60 * 1e3,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "\u062A\u0639\u062F\u0627\u062F \u0622\u067E\u0644\u0648\u062F \u0628\u06CC\u0634 \u0627\u0632 \u062D\u062F \u0645\u062C\u0627\u0632 \u0627\u0633\u062A. \u06A9\u0645\u06CC \u0628\u0639\u062F \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u0644\u0627\u0634 \u06A9\u0646\u06CC\u062F."
+  }
+});
+
+// src/validators/index.js
+var import_validator = __toESM(require("validator"), 1);
+
+// src/utils/sanitize.js
+var import_xss = __toESM(require("xss"), 1);
+function sanitizeString(value = "") {
+  return (0, import_xss.default)(String(value).trim());
+}
+function sanitizePhone(value = "") {
+  return String(value).replace(/[^\d+\-\s()]/g, "").trim().slice(0, 20);
+}
+
+// src/validators/index.js
+function validateUploadBody(req, res, next) {
+  try {
+    const name = sanitizeString(req.body?.name || "");
+    const phone = sanitizePhone(req.body?.phone || "");
+    if (!name || name.length < 2) {
+      throw new AppError("\u0646\u0627\u0645 \u0628\u0627\u06CC\u062F \u062D\u062F\u0627\u0642\u0644 \u06F2 \u06A9\u0627\u0631\u0627\u06A9\u062A\u0631 \u0628\u0627\u0634\u062F", 400);
+    }
+    if (name.length > 100) {
+      throw new AppError("\u0646\u0627\u0645 \u0646\u0628\u0627\u06CC\u062F \u0628\u06CC\u0634\u062A\u0631 \u0627\u0632 \u06F1\u06F0\u06F0 \u06A9\u0627\u0631\u0627\u06A9\u062A\u0631 \u0628\u0627\u0634\u062F", 400);
+    }
+    if (phone && !/^[\d+\-\s()]{7,20}$/.test(phone)) {
+      throw new AppError("\u0634\u0645\u0627\u0631\u0647 \u062A\u0645\u0627\u0633 \u0645\u0639\u062A\u0628\u0631 \u0646\u06CC\u0633\u062A", 400);
+    }
+    req.validated = { name, phone };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+function validateLoginBody(req, res, next) {
+  try {
+    const email = sanitizeString(req.body?.email || "").toLowerCase();
+    const password = String(req.body?.password || "");
+    if (!import_validator.default.isEmail(email)) {
+      throw new AppError("\u0627\u06CC\u0645\u06CC\u0644 \u0645\u0639\u062A\u0628\u0631 \u0646\u06CC\u0633\u062A", 400);
+    }
+    if (!password || password.length < 6) {
+      throw new AppError("\u0631\u0645\u0632 \u0639\u0628\u0648\u0631 \u0645\u0639\u062A\u0628\u0631 \u0646\u06CC\u0633\u062A", 400);
+    }
+    req.validated = { email, password };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+// src/routes/authRoutes.js
+var router = (0, import_express.Router)();
+router.post("/login", authLimiter, validateLoginBody, login);
+router.get("/me", requireAuth, me);
+var authRoutes_default = router;
+
+// src/routes/uploadRoutes.js
+var import_express2 = require("express");
+
+// src/services/uploadService.js
+var import_promises = __toESM(require("fs/promises"), 1);
+var import_path2 = __toESM(require("path"), 1);
+
+// src/models/Upload.js
+var import_mongoose2 = __toESM(require("mongoose"), 1);
+var uploadSchema = new import_mongoose2.default.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100
+    },
+    phone: {
+      type: String,
+      trim: true,
+      maxlength: 20,
+      default: ""
+    },
+    originalName: {
+      type: String,
+      required: true,
+      maxlength: 255
+    },
+    filename: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    mimeType: {
+      type: String,
+      required: true
+    },
+    size: {
+      type: Number,
+      required: true
+    },
+    path: {
+      type: String,
+      required: true
+    }
+  },
+  { timestamps: true }
+);
+uploadSchema.index({ createdAt: -1 });
+var Upload = import_mongoose2.default.model("Upload", uploadSchema);
+
+// src/utils/paths.js
+var import_path = __toESM(require("path"), 1);
+var ROOT_DIR = process.cwd();
+var UPLOADS_DIR = import_path.default.join(ROOT_DIR, "uploads");
+
+// src/services/uploadService.js
+async function createUpload({ name, phone, file }) {
+  const relativePath = import_path2.default.posix.join("uploads", file.filename);
+  const doc = await Upload.create({
+    name,
+    phone: phone || "",
+    originalName: file.originalname,
+    filename: file.filename,
+    mimeType: file.detectedMime || file.mimetype,
+    size: file.size,
+    path: relativePath
+  });
+  return doc;
+}
+async function listUploads({ page = 1, limit = 20 } = {}) {
+  const safePage = Math.max(1, Number(page) || 1);
+  const safeLimit = Math.min(100, Math.max(1, Number(limit) || 20));
+  const skip = (safePage - 1) * safeLimit;
+  const [items, total] = await Promise.all([
+    Upload.find().sort({ createdAt: -1 }).skip(skip).limit(safeLimit).lean(),
+    Upload.countDocuments()
+  ]);
+  return {
+    items,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      pages: Math.ceil(total / safeLimit) || 1
+    }
+  };
+}
+async function deleteUpload(id) {
+  const doc = await Upload.findById(id);
+  if (!doc) {
+    throw new AppError("\u0631\u06A9\u0648\u0631\u062F \u06CC\u0627\u0641\u062A \u0646\u0634\u062F", 404);
+  }
+  const absolutePath = import_path2.default.join(UPLOADS_DIR, doc.filename);
+  try {
+    await import_promises.default.unlink(absolutePath);
+  } catch {
+  }
+  await doc.deleteOne();
+  return true;
+}
+
+// src/controllers/uploadController.js
+async function create(req, res, next) {
+  try {
+    const doc = await createUpload({
+      name: req.validated.name,
+      phone: req.validated.phone,
+      file: req.file
+    });
+    res.status(201).json({
+      success: true,
+      message: "\u062A\u0635\u0648\u06CC\u0631 \u0628\u0627 \u0645\u0648\u0641\u0642\u06CC\u062A \u0627\u0631\u0633\u0627\u0644 \u0634\u062F. \u0627\u0632 \u0645\u0634\u0627\u0631\u06A9\u062A \u0634\u0645\u0627 \u0633\u067E\u0627\u0633\u06AF\u0632\u0627\u0631\u06CC\u0645.",
+      data: {
+        id: doc._id,
+        name: doc.name,
+        createdAt: doc.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+async function list(req, res, next) {
+  try {
+    const result = await listUploads({
+      page: req.query.page,
+      limit: req.query.limit
+    });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+async function remove(req, res, next) {
+  try {
+    await deleteUpload(req.params.id);
+    res.json({ success: true, message: "\u0631\u06A9\u0648\u0631\u062F \u0648 \u062A\u0635\u0648\u06CC\u0631 \u062D\u0630\u0641 \u0634\u062F\u0646\u062F" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// src/middleware/upload.js
+var import_fs = __toESM(require("fs"), 1);
+var import_path3 = __toESM(require("path"), 1);
+var import_crypto = __toESM(require("crypto"), 1);
+var import_multer = __toESM(require("multer"), 1);
+var ALLOWED_MIME = /* @__PURE__ */ new Set(["image/jpeg", "image/png", "image/webp"]);
+var ALLOWED_EXT = /* @__PURE__ */ new Set([".jpg", ".jpeg", ".png", ".webp"]);
+function detectMime(buffer) {
+  if (buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) {
+    return "image/jpeg";
+  }
+  if (buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71) {
+    return "image/png";
+  }
+  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+    return "image/webp";
+  }
+  return null;
+}
+if (!import_fs.default.existsSync(UPLOADS_DIR)) {
+  import_fs.default.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+var storage = import_multer.default.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const ext = import_path3.default.extname(file.originalname).toLowerCase();
+    const safeExt = ALLOWED_EXT.has(ext) ? ext : ".jpg";
+    cb(null, `${Date.now()}-${import_crypto.default.randomBytes(8).toString("hex")}${safeExt}`);
+  }
+});
+function fileFilter(_req, file, cb) {
+  const ext = import_path3.default.extname(file.originalname).toLowerCase();
+  if (!ALLOWED_MIME.has(file.mimetype) || !ALLOWED_EXT.has(ext)) {
+    return cb(new AppError("\u0641\u0642\u0637 \u062A\u0635\u0627\u0648\u06CC\u0631 JPG\u060C PNG \u06CC\u0627 WEBP \u0645\u062C\u0627\u0632 \u0647\u0633\u062A\u0646\u062F", 400));
+  }
+  cb(null, true);
+}
+var uploadSingleImage = (0, import_multer.default)({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: config_default.uploadMaxSizeMb * 1024 * 1024,
+    files: 1
+  }
+}).single("image");
+async function validateImageMagicBytes(req, res, next) {
+  try {
+    if (!req.file) {
+      throw new AppError("\u0627\u0646\u062A\u062E\u0627\u0628 \u062A\u0635\u0648\u06CC\u0631 \u0627\u0644\u0632\u0627\u0645\u06CC \u0627\u0633\u062A", 400);
+    }
+    const buffer = Buffer.alloc(4100);
+    const fd = import_fs.default.openSync(req.file.path, "r");
+    import_fs.default.readSync(fd, buffer, 0, 4100, 0);
+    import_fs.default.closeSync(fd);
+    const detectedMime = detectMime(buffer);
+    if (!detectedMime || !ALLOWED_MIME.has(detectedMime)) {
+      import_fs.default.unlinkSync(req.file.path);
+      throw new AppError("\u0641\u0627\u06CC\u0644 \u0622\u067E\u0644\u0648\u062F \u0634\u062F\u0647 \u06CC\u06A9 \u062A\u0635\u0648\u06CC\u0631 \u0645\u0639\u062A\u0628\u0631 \u0646\u06CC\u0633\u062A", 400);
+    }
+    req.file.detectedMime = detectedMime;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+function handleMulterError(err, req, res, next) {
+  if (!err) return next();
+  if (err instanceof import_multer.default.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return next(
+        new AppError(`\u062D\u062C\u0645 \u062A\u0635\u0648\u06CC\u0631 \u0646\u0628\u0627\u06CC\u062F \u0628\u06CC\u0634\u062A\u0631 \u0627\u0632 ${config_default.uploadMaxSizeMb} \u0645\u06AF\u0627\u0628\u0627\u06CC\u062A \u0628\u0627\u0634\u062F`, 400)
+      );
+    }
+    if (err.code === "LIMIT_UNEXPECTED_FILE") {
+      return next(new AppError("\u0641\u0642\u0637 \u06CC\u06A9 \u062A\u0635\u0648\u06CC\u0631 \u0645\u062C\u0627\u0632 \u0627\u0633\u062A", 400));
+    }
+    return next(new AppError("\u062E\u0637\u0627 \u062F\u0631 \u0622\u067E\u0644\u0648\u062F \u0641\u0627\u06CC\u0644", 400));
+  }
+  next(err);
+}
+
+// src/routes/uploadRoutes.js
+var router2 = (0, import_express2.Router)();
+router2.post(
+  "/",
+  uploadLimiter,
+  (req, res, next) => {
+    uploadSingleImage(req, res, (err) => handleMulterError(err, req, res, next));
+  },
+  validateImageMagicBytes,
+  validateUploadBody,
+  create
+);
+router2.get("/", requireAuth, list);
+router2.delete("/:id", requireAuth, remove);
+var uploadRoutes_default = router2;
+
+// src/routes/index.js
+var router3 = (0, import_express3.Router)();
+router3.get("/health", (_req, res) => {
+  res.json({ success: true, message: "OK" });
+});
+router3.use("/auth", authRoutes_default);
+router3.use("/uploads", uploadRoutes_default);
+var routes_default = router3;
+
+// src/middleware/errorHandler.js
+function notFoundHandler(req, res, next) {
+  next(new AppError("\u0645\u0633\u06CC\u0631 \u06CC\u0627\u0641\u062A \u0646\u0634\u062F", 404));
+}
+function errorHandler(err, req, res, next) {
+  const statusCode = err.statusCode || 500;
+  const message = err.isOperational || statusCode < 500 ? err.message : "\u062E\u0637\u0627\u06CC \u062F\u0627\u062E\u0644\u06CC \u0633\u0631\u0648\u0631";
+  if (process.env.NODE_ENV !== "production") {
+    console.error(err);
+  }
+  res.status(statusCode).json({
+    success: false,
+    message,
+    details: err.details || void 0
+  });
+}
+
+// src/app.js
+function createApp() {
+  const app2 = (0, import_express4.default)();
+  app2.set("trust proxy", 1);
+  app2.use(
+    (0, import_helmet.default)({
+      crossOriginResourcePolicy: { policy: "cross-origin" }
+    })
+  );
+  app2.use(
+    (0, import_cors.default)({
+      origin: config_default.corsOrigin,
+      credentials: true,
+      methods: ["GET", "POST", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"]
+    })
+  );
+  app2.use(import_express4.default.json({ limit: "100kb" }));
+  app2.use(import_express4.default.urlencoded({ extended: false, limit: "100kb" }));
+  app2.use((0, import_express_mongo_sanitize.default)());
+  app2.use("/api", apiLimiter);
+  app2.use(
+    "/uploads",
+    import_express4.default.static(UPLOADS_DIR, {
+      fallthrough: true,
+      maxAge: "7d",
+      setHeaders(res) {
+        res.setHeader("X-Content-Type-Options", "nosniff");
+      }
+    })
+  );
+  app2.use("/api", routes_default);
+  app2.use(notFoundHandler);
+  app2.use(errorHandler);
+  return app2;
+}
+
+// src/config/db.js
+var import_mongoose3 = __toESM(require("mongoose"), 1);
+async function connectDatabase() {
+  import_mongoose3.default.set("strictQuery", true);
+  await import_mongoose3.default.connect(config_default.mongodbUri);
+  console.log("MongoDB connected");
+}
+
+// app.js
+if (!import_fs2.default.existsSync(UPLOADS_DIR)) {
+  import_fs2.default.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+var dbReady = false;
+var ready = connectDatabase().then(() => ensureDefaultAdmin()).then(() => {
+  dbReady = true;
+}).catch((err) => {
+  console.error("Database bootstrap failed:", err);
+});
+var app = createApp();
+app.use(async (req, res, next) => {
+  await ready;
+  if (!dbReady) {
+    return res.status(503).json({
+      success: false,
+      message: "\u0633\u0631\u0648\u06CC\u0633 API \u0645\u0648\u0642\u062A\u0627\u064B \u062F\u0631 \u062F\u0633\u062A\u0631\u0633 \u0646\u06CC\u0633\u062A. MongoDB \u0631\u0627 \u062F\u0631 .env \u062A\u0646\u0638\u06CC\u0645 \u06A9\u0646\u06CC\u062F."
+    });
+  }
+  next();
+});
+var app_default = app;
+module.exports = app;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const { siteContent, mediaUrl } = useSiteContent();
+import { assetUrl } from '~/composables/useSiteContent';
 
+const { siteContent } = useSiteContent();
+const { apiBase } = useApi();
 const scroller = ref<HTMLElement | null>(null);
 
 function scrollByDir(dir: number) {
@@ -14,7 +16,7 @@ function scrollByDir(dir: number) {
 <template>
   <section id="events" class="section-shell pb-10 sm:pb-12">
     <div class="mb-4 flex items-center justify-between gap-3 sm:mb-6">
-      <h2 class="min-w-0 text-lg font-extrabold text-brand-green sm:text-xl md:text-2xl">
+      <h2 class="section-title !mb-0 min-w-0 flex-1 text-right sm:text-center">
         {{ siteContent.eventsTitle }}
       </h2>
       <div class="flex shrink-0 gap-2">
@@ -36,7 +38,6 @@ function scrollByDir(dir: number) {
         </button>
       </div>
     </div>
-
     <div
       ref="scroller"
       class="carousel-bleed flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scrollbar-hide sm:gap-4"
@@ -47,13 +48,13 @@ function scrollByDir(dir: number) {
         class="card-soft w-[min(85vw,280px)] shrink-0 snap-start overflow-hidden border border-brand-line/60 sm:w-[280px]"
       >
         <img
-          :src="mediaUrl(event.image)"
+          :src="assetUrl(event.image, apiBase)"
           :alt="event.alt"
           width="640"
           height="360"
           loading="lazy"
           decoding="async"
-          class="aspect-[16/10] w-full object-cover"
+          class="h-32 w-full object-cover sm:h-36"
         />
         <div class="p-3.5 sm:p-4">
           <h3 class="text-sm font-bold text-slate-800">{{ event.title }}</h3>

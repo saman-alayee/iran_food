@@ -1,31 +1,37 @@
 <script setup lang="ts">
-const { siteContent, mediaUrl } = useSiteContent();
+import {
+  assetUrl,
+  computeCountdownRemaining,
+  parseCountdownTarget,
+} from '~/composables/useSiteContent';
 
-const target = computed(() => {
-  if (siteContent.value.countdownTarget) {
-    const parsed = new Date(siteContent.value.countdownTarget);
-    if (!Number.isNaN(parsed.getTime())) return parsed;
-  }
-  const fallback = new Date();
-  fallback.setDate(fallback.getDate() + 45);
-  fallback.setHours(fallback.getHours() + 12);
-  return fallback;
-});
+const { siteContent } = useSiteContent();
+const { apiBase } = useApi();
+
+const countdownImageUrl = computed(() =>
+  assetUrl(siteContent.value.countdownImage || '/images/project/team-collaboration.png', apiBase)
+);
 
 const now = ref(Date.now());
+const ready = ref(false);
 let timer: ReturnType<typeof setInterval> | null = null;
 
+const target = computed(() => parseCountdownTarget(siteContent.value.countdownTargetDate));
+const hasValidTarget = computed(() => !!target.value);
+
 const remaining = computed(() => {
-  const diff = Math.max(0, target.value.getTime() - now.value);
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  return { days, hours };
+  if (!target.value) {
+    return { days: 0, hours: 0, minutes: 0, expired: false };
+  }
+  return computeCountdownRemaining(target.value, now.value);
 });
 
 onMounted(() => {
+  ready.value = true;
+  now.value = Date.now();
   timer = setInterval(() => {
     now.value = Date.now();
-  }, 60_000);
+  }, 1000);
 });
 
 onBeforeUnmount(() => {
@@ -34,69 +40,62 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="section-shell pb-8 sm:pb-10">
+  <section id="about" class="section-shell pb-8 sm:pb-10">
     <div
-      class="card-soft grid items-stretch gap-4 overflow-hidden p-4 sm:gap-6 sm:p-6 md:grid-cols-2 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(220px,280px)]"
+      class="card-soft grid overflow-hidden border border-brand-line/50 md:grid-cols-[minmax(0,240px)_1fr_minmax(0,200px)] md:items-stretch"
     >
-      <div class="overflow-hidden rounded-2xl md:row-span-1 lg:row-auto">
+      <div class="overflow-hidden md:min-h-[240px]">
         <img
-          :src="mediaUrl(siteContent.images.countdownHero)"
-          alt="زن جوان با بشقاب غذای ایرانی — ایران فود"
-          width="640"
+          :src="countdownImageUrl"
+          alt="مشارکت در پروژه ایران فود"
+          width="480"
           height="480"
           loading="lazy"
           decoding="async"
-          class="h-44 w-full object-cover object-[center_20%] sm:h-52 md:h-full md:min-h-[220px]"
+          class="h-48 w-full object-cover object-top md:h-full md:min-h-[240px]"
         />
       </div>
 
-      <div class="text-center md:text-right lg:px-2">
-        <h2 class="text-base font-bold leading-7 text-brand-green sm:text-lg lg:text-xl">
+      <div class="border-y border-brand-line/40 p-5 md:border-y-0 md:border-x md:p-6">
+        <h2 class="text-base font-extrabold leading-8 text-brand-green sm:text-lg">
           {{ siteContent.countdownTitle }}
         </h2>
-        <ul class="mt-3 space-y-2 text-sm text-slate-600 sm:mt-4">
+        <ul class="mt-4 space-y-2.5">
           <li
             v-for="(item, idx) in siteContent.countdownItems"
-            :key="`${idx}-${item}`"
-            class="flex items-start justify-center gap-2 md:justify-start"
+            :key="item"
+            class="flex items-start gap-2.5 text-sm leading-7 text-slate-600"
           >
             <span
-              class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-green-light text-[10px] font-bold text-brand-green"
+              class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-green text-[10px] font-bold text-white"
             >
               {{ idx + 1 }}
             </span>
-            <span class="text-right leading-6">{{ item }}</span>
+            <span>{{ item }}</span>
           </li>
         </ul>
       </div>
 
-      <div class="flex flex-col items-center justify-center md:col-span-2 lg:col-span-1">
-        <p class="mb-4 text-center text-sm font-bold text-brand-green sm:text-base">
-          زمان باقی‌مانده تا انتشار
+      <div class="flex flex-col items-center justify-center bg-brand-green px-4 py-6 text-white">
+        <p class="text-xs font-medium text-white/85">
+          {{ siteContent.countdownTimerLabel }}
         </p>
-        <div class="flex items-center justify-center gap-3 sm:gap-4">
-          <div
-            class="flex min-w-[104px] flex-col items-center rounded-3xl bg-brand-green px-6 py-5 shadow-md sm:min-w-[120px] sm:px-7 sm:py-6"
-          >
-            <span class="text-5xl font-extrabold leading-none text-white sm:text-6xl">
-              {{ remaining.hours }}
-            </span>
-            <span class="mt-2 text-base font-bold text-white/95 sm:text-lg">ساعت</span>
-          </div>
-
-          <span class="pb-6 text-4xl font-extrabold leading-none text-brand-green sm:text-5xl" aria-hidden="true">
-            :
-          </span>
-
-          <div
-            class="flex min-w-[104px] flex-col items-center rounded-3xl bg-brand-green px-6 py-5 shadow-md sm:min-w-[120px] sm:px-7 sm:py-6"
-          >
-            <span class="text-5xl font-extrabold leading-none text-white sm:text-6xl">
-              {{ remaining.days }}
-            </span>
-            <span class="mt-2 text-base font-bold text-white/95 sm:text-lg">روز</span>
-          </div>
-        </div>
+        <p v-if="!ready" class="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl" aria-hidden="true">
+          — —
+        </p>
+        <p v-else-if="!hasValidTarget" class="mt-3 text-center text-sm font-semibold leading-7 text-white/90">
+          تاریخ انتشار به‌زودی اعلام می‌شود
+        </p>
+        <p v-else-if="remaining.expired" class="mt-3 text-xl font-extrabold sm:text-2xl">
+          منتشر شد!
+        </p>
+        <p v-else class="mt-3 text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl">
+          {{ remaining.days }}
+          <span class="text-base font-semibold">روز</span>
+          <span class="mx-1 text-white/70">:</span>
+          {{ remaining.hours }}
+          <span class="text-base font-semibold">ساعت</span>
+        </p>
       </div>
     </div>
   </section>

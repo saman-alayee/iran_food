@@ -225,6 +225,12 @@ onMounted(() => fetchUploads(1));
             مدیریت محتوا
           </NuxtLink>
           <NuxtLink
+            to="/admin/content"
+            class="rounded-full border border-brand-green bg-brand-green-light px-4 py-2.5 text-center text-sm font-semibold text-brand-green"
+          >
+            مدیریت محتوا
+          </NuxtLink>
+          <NuxtLink
             to="/"
             class="rounded-full border border-brand-line px-4 py-2.5 text-center text-sm"
           >

@@ -4,7 +4,7 @@ const { siteContent } = useSiteContent();
 
 <template>
   <section id="apps" class="section-shell pb-10 sm:pb-12">
-    <h2 class="section-title mb-6 sm:mb-8">
+    <h2 class="section-title-right mb-6 sm:mb-8">
       {{ siteContent.appsTitle }}
     </h2>
 

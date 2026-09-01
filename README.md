@@ -6,12 +6,12 @@ Landing page + upload API + admin panel for the Iran Food visual dataset.
 
 - **Frontend:** Nuxt 3, Tailwind CSS, Composition API (SSR)
 - **Backend:** Express.js
-- **Database:** MongoDB + Mongoose
+- **Database:** MySQL (mysql2)
 
 ## Prerequisites
 
 - Node.js 20+
-- MongoDB running locally (`mongodb://127.0.0.1:27017`)
+- MySQL 8+ / MariaDB (local or cPanel)
 
 ## Setup
 

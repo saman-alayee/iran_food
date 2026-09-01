@@ -31,6 +31,17 @@ html {
   overflow-x: clip;
 }
 
+#home,
+#about,
+#countdown,
+#why,
+#events,
+#rewards,
+#contact,
+#process {
+  scroll-margin-top: 5rem;
+}
+
 body {
   @apply bg-brand-cream font-sans text-slate-800 antialiased;
   background-color: var(--brand-cream, #f8fbf9);
@@ -132,6 +143,21 @@ body {
   .ring-brand-line\/80 {
     --tw-ring-color: color-mix(in srgb, var(--brand-line, #c8ddd0) 80%, transparent);
   }
+}
+
+.section-title-right {
+  @apply text-right text-lg font-extrabold text-brand-green sm:text-xl md:text-2xl;
+}
+
+[id='home'],
+[id='about'],
+[id='why'],
+[id='apps'],
+[id='rewards'],
+[id='process'],
+[id='events'],
+[id='contact'] {
+  scroll-margin-top: 4.5rem;
 }
 
 .btn-green {

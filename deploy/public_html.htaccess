@@ -1,0 +1,50 @@
+# Iran Food — Nuxt static site + SPA fallback
+DirectoryIndex index.html index.htm
+
+# Force HTTPS (Apache behind Caddy/BitNinja proxy)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} ^/\.well-known/acme-challenge/ [NC]
+  RewriteRule ^ - [L]
+  RewriteCond %{HTTP_HOST} ^www\.iranfoodd\.ir$ [NC]
+  RewriteRule ^ https://iranfoodd.ir%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTP_HOST} ^(www\.)?iranfoodd\.ir$ [NC]
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Proxy API and uploads to Node backend (Passenger on localhost)
+  RewriteRule ^api/(.*)$ api-proxy.php?path=$1 [QSA,L]
+  RewriteRule ^uploads/(.*)$ uploads-proxy.php [L]
+
+  # Serve existing files/directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # SPA fallback for client routes (admin panel)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+</IfModule>

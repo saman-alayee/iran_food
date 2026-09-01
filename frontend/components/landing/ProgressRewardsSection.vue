@@ -91,7 +91,29 @@ function barColor(status: string) {
           </article>
         </div>
 
-        <div class="mt-4 overflow-x-auto rounded-2xl border border-brand-line sm:mt-5">
+        <div
+          v-if="siteContent.collaborations?.length"
+          class="mt-4 overflow-hidden rounded-2xl border border-brand-line sm:mt-5"
+        >
+          <div class="bg-brand-green px-4 py-2 text-sm font-bold text-white">
+            {{ siteContent.collaborationsTitle || 'همکاری‌ها' }}
+          </div>
+          <ul class="divide-y divide-brand-line/50">
+            <li
+              v-for="item in siteContent.collaborations"
+              :key="`${item.title}-${item.text}`"
+              class="bg-white px-4 py-3 text-sm"
+            >
+              <p class="font-bold text-brand-green">{{ item.title }}</p>
+              <p v-if="item.text" class="mt-1 leading-6 text-slate-600">{{ item.text }}</p>
+            </li>
+          </ul>
+        </div>
+
+        <div
+          v-else-if="siteContent.points?.length && siteContent.pointsTitle"
+          class="mt-4 overflow-x-auto rounded-2xl border border-brand-line sm:mt-5"
+        >
           <div class="min-w-[280px] bg-brand-green px-4 py-2 text-sm font-bold text-white">
             {{ siteContent.pointsTitle }}
           </div>
