@@ -44,7 +44,7 @@ onBeforeUnmount(() => {
         class="shrink-0 text-white"
         @click="closeMenu"
       >
-        <LandingBrandLogo />
+        <LandingBrandLogo framed />
       </a>
 
       <ul

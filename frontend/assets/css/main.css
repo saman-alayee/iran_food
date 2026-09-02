@@ -7,6 +7,7 @@
   --brand-green-dark: #145f2e;
   --brand-green-light: #e6f4ea;
   --brand-green-mid: #2e9b52;
+  --brand-footer: #0a4a31;
   --brand-orange: #f5a623;
   --brand-orange-dark: #e09000;
   --brand-cream: #f8fbf9;
@@ -37,6 +38,7 @@ html {
 #why,
 #events,
 #rewards,
+#upload,
 #contact,
 #process {
   scroll-margin-top: 5rem;
@@ -116,6 +118,10 @@ body {
     background-color: var(--brand-green, #1a7a3a);
   }
 
+  .bg-brand-footer {
+    background-color: var(--brand-footer, #0a4a31);
+  }
+
   .bg-brand-green-light {
     background-color: var(--brand-green-light, #e6f4ea);
   }
@@ -154,6 +160,7 @@ body {
 [id='why'],
 [id='apps'],
 [id='rewards'],
+[id='upload'],
 [id='process'],
 [id='events'],
 [id='contact'] {

@@ -48,8 +48,7 @@ useHead({
     <main>
       <LandingHeroSection v-if="sections.hero" @open-upload="uploadOpen = true" />
       <LandingCountdownSection v-if="sections.countdown" />
-      <LandingWhySection v-if="sections.why" />
-      <LandingApplicationsSection v-if="sections.apps" />
+      <LandingWhySection v-if="sections.why || sections.apps" />
       <LandingProgressRewardsSection v-if="sections.progress" />
       <LandingEventsSection v-if="sections.events" />
     </main>

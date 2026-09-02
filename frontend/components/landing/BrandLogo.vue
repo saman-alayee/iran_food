@@ -9,8 +9,9 @@ withDefaults(
     size?: 'sm' | 'md';
     showName?: boolean;
     light?: boolean;
+    framed?: boolean;
   }>(),
-  { size: 'md', showName: false, light: true }
+  { size: 'md', showName: false, light: true, framed: false }
 );
 
 const logoSrc = computed(() => {
@@ -22,20 +23,31 @@ const logoSrc = computed(() => {
 
 <template>
   <span class="inline-flex min-w-0 items-center gap-2.5">
-    <img
-      :src="logoSrc"
-      :alt="siteContent.brand || 'Iran Food Dataset'"
-      class="shrink-0 object-contain"
+    <span
+      class="inline-flex shrink-0 items-center justify-center"
       :class="
-        size === 'sm'
-          ? 'h-7 w-auto max-w-[120px] sm:max-w-[132px]'
-          : 'h-8 w-auto max-w-[132px] sm:h-9 sm:max-w-[156px]'
+        framed
+          ? size === 'sm'
+            ? 'rounded-lg bg-white px-2 py-1 shadow-sm ring-1 ring-black/5'
+            : 'rounded-lg bg-white px-2.5 py-1.5 shadow-sm ring-1 ring-black/5'
+          : ''
       "
-      width="156"
-      height="36"
-      loading="eager"
-      decoding="async"
-    />
+    >
+      <img
+        :src="logoSrc"
+        :alt="siteContent.brand || 'Iran Food Dataset'"
+        class="shrink-0 object-contain"
+        :class="
+          size === 'sm'
+            ? 'h-11 w-11 sm:h-12 sm:w-12'
+            : 'h-12 w-12 sm:h-14 sm:w-14'
+        "
+        width="112"
+        height="112"
+        loading="eager"
+        decoding="async"
+      />
+    </span>
     <span
       v-if="showName"
       class="truncate font-extrabold"

@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { foodThumbs } from '~/composables/useFoodImages';
+import { assetUrl } from '~/composables/useSiteContent';
 
 const { siteContent } = useSiteContent();
+const { apiBase } = useApi();
 
 const emit = defineEmits<{ openUpload: [] }>();
-const { isMobile } = useBreakpoint();
 
-type CollageItem = { id?: number; src: string; alt: string; name?: string };
-
-const visibleThumbs = computed(() => {
-  const collage = (siteContent.value as { heroCollage?: CollageItem[] }).heroCollage;
-  const source: CollageItem[] =
-    collage?.length
-      ? collage.map((item, index) => ({ ...item, id: index + 1 }))
-      : foodThumbs;
-  if (isMobile.value) return source.slice(0, 16);
-  return source;
-});
+const visibleThumbs = computed(() =>
+  (siteContent.value.heroThumbs || [])
+    .filter((item) => item.src)
+    .map((item, index) => ({
+      id: index + 1,
+      src: assetUrl(item.src, apiBase),
+      alt: item.alt || item.name || 'غذای ایرانی',
+    }))
+);
 
 function scrollRewards() {
   document.getElementById('rewards')?.scrollIntoView({ behavior: 'smooth' });
@@ -76,7 +74,7 @@ function scrollRewards() {
           <div
             v-for="thumb in visibleThumbs"
             :key="thumb.id"
-            class="aspect-square overflow-hidden rounded-full border-2 border-white shadow-sm ring-1 ring-brand-line/80"
+            class="aspect-square overflow-hidden rounded-none border border-brand-line/70 bg-white shadow-sm"
           >
             <img
               :src="thumb.src"

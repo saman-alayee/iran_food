@@ -70,13 +70,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:4000',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:4002',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3001',
     },
   },
 
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3001',
     name: 'Iran Food',
   },
 

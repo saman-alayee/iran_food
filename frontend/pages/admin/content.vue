@@ -23,7 +23,7 @@ const tabs = [
   { id: 'about', label: 'درباره ما / تایمر' },
   { id: 'why', label: 'چرا ایران فود + کاربردها' },
   { id: 'upload', label: 'آپلود تصویر' },
-  { id: 'hero', label: 'Hero' },
+  { id: 'hero', label: 'Hero / کلاژ عکس' },
   { id: 'progress', label: 'پیشرفت و جوایز' },
   { id: 'events', label: 'رویدادها' },
   { id: 'gallery', label: 'گالری فرآیند' },
@@ -295,8 +295,48 @@ function removeEvent(index: number) {
   content.value.events.splice(index, 1);
 }
 
-function addHeroFeature() {
-  content.value.heroFeatures.push({ icon: 'standard', text: '' });
+async function uploadHeroThumb(index: number, file: File) {
+  uploadingField.value = `hero-thumb-${index}`;
+  error.value = '';
+  try {
+    loadToken();
+    if (!token.value) {
+      clearSession();
+      await navigateTo('/admin/login');
+      return;
+    }
+    const form = new FormData();
+    form.append('image', file);
+    const res = await apiFetch<{ success: boolean; data: { path: string } }>(
+      '/api/content/assets',
+      { method: 'POST', token: token.value, formData: form }
+    );
+    content.value.heroThumbs[index].src = res.data.path;
+    message.value = 'تصویر کلاژ آپلود شد — ذخیره تغییرات را بزنید';
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'آپلود تصویر ناموفق بود';
+    if (String(error.value).includes('توکن')) {
+      clearSession();
+      await navigateTo('/admin/login');
+    }
+  } finally {
+    uploadingField.value = null;
+  }
+}
+
+function onHeroThumbPick(index: number, e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (file) uploadHeroThumb(index, file);
+  input.value = '';
+}
+
+function addHeroThumb() {
+  content.value.heroThumbs.push({ src: '', alt: '', name: '' });
+}
+
+function removeHeroThumb(index: number) {
+  content.value.heroThumbs.splice(index, 1);
 }
 
 function removeHeroFeature(index: number) {
@@ -546,6 +586,9 @@ onBeforeUnmount(() => {
 
           <!-- Upload -->
           <template v-else-if="activeTab === 'upload'">
+            <p class="rounded-xl bg-brand-cream px-4 py-3 text-sm leading-7 text-slate-600">
+              ویدیوی راهنمای تصویربرداری و شرایط ارسال عکس را اینجا تنظیم کنید. کاربران در مودال آپلود، ابتدا راهنما را می‌بینند و سپس تصویر ارسال می‌کنند.
+            </p>
             <label class="block text-sm">
               <span class="mb-1 block font-semibold">عنوان مودال آپلود</span>
               <input v-model="content.uploadModalTitle" class="field-input" />
@@ -575,10 +618,17 @@ onBeforeUnmount(() => {
               <input v-model="content.uploadGuideVideoPoster" class="field-input" dir="ltr" />
             </label>
             <div>
-              <span class="mb-2 block text-sm font-semibold">آپلود ویدیو/تصویر راهنمای مشخصات تصویربرداری</span>
-              <p class="mb-2 text-xs text-slate-500">فرمت‌های مجاز: JPG, PNG, WEBP, MP4, WEBM</p>
+              <span class="mb-2 block text-sm font-semibold">آپلود ویدیوی راهنمای تصویربرداری</span>
+              <p class="mb-2 text-xs text-slate-500">
+                فرمت‌های مجاز: MP4، WEBM، OGG (تا ۵۰ مگابایت) — یا تصویر JPG/PNG/WEBP
+              </p>
               <input type="file" accept="image/*,video/mp4,video/webm,video/ogg" @change="onImagePick('uploadGuideVideoUrl', $event)" />
             </div>
+            <div>
+              <span class="mb-2 block text-sm font-semibold">آپلود پوستر ویدیو (اختیاری)</span>
+              <input type="file" accept="image/*" @change="onImagePick('uploadGuideVideoPoster', $event)" />
+            </div>
+            <p class="text-sm font-semibold text-brand-green">شرایط و مشخصات تصویربرداری</p>
             <div v-if="content.uploadGuideVideoUrl" class="rounded-xl border border-brand-line/60 p-3">
               <p class="mb-2 text-xs font-semibold text-slate-500">پیش‌نمایش راهنما</p>
               <video
@@ -624,6 +674,54 @@ onBeforeUnmount(() => {
                 <button type="button" class="btn-muted" @click="removeHeroFeature(idx)">حذف</button>
               </div>
               <button type="button" class="btn-muted" @click="addHeroFeature">+ ویژگی جدید</button>
+            </div>
+            <hr class="border-brand-line/50" />
+            <div>
+              <span class="mb-1 block text-sm font-semibold">عکس‌های کلاژ بالای صفحه</span>
+              <p class="mb-3 text-xs leading-6 text-slate-500">
+                تعداد عکس‌ها را کم یا زیاد کنید، تصویر را عوض کنید و ذخیره را بزنید. چیدمان دایره‌ای ۵ ستونه مثل صفحه اصلی است.
+              </p>
+              <div class="mb-4 grid grid-cols-5 gap-2">
+                <div
+                  v-for="(thumb, idx) in content.heroThumbs"
+                  :key="`preview-${idx}`"
+                  class="aspect-square overflow-hidden rounded-none border border-brand-line/70 bg-brand-cream"
+                >
+                  <img
+                    v-if="thumb.src"
+                    :src="mediaUrl(thumb.src)"
+                    :alt="thumb.alt || thumb.name"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <div
+                v-for="(thumb, idx) in content.heroThumbs"
+                :key="`ht-${idx}`"
+                class="mb-3 rounded-xl border border-brand-line/60 p-3"
+              >
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <span class="text-xs font-semibold text-slate-500">عکس {{ idx + 1 }}</span>
+                  <button type="button" class="btn-muted" @click="removeHeroThumb(idx)">حذف</button>
+                </div>
+                <img
+                  v-if="thumb.src"
+                  :src="mediaUrl(thumb.src)"
+                  alt=""
+                  class="mb-2 h-20 w-20 rounded-none object-cover"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="mb-2 block text-sm"
+                  :disabled="uploadingField === `hero-thumb-${idx}`"
+                  @change="onHeroThumbPick(idx, $event)"
+                />
+                <input v-model="thumb.name" class="field-input mb-2" placeholder="نام غذا" />
+                <input v-model="thumb.alt" class="field-input mb-2" placeholder="متن جایگزین" />
+                <input v-model="thumb.src" class="field-input" dir="ltr" placeholder="مسیر تصویر" />
+              </div>
+              <button type="button" class="btn-muted" @click="addHeroThumb">+ عکس جدید</button>
             </div>
           </template>
 

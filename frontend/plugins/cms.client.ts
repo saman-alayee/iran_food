@@ -1,4 +1,4 @@
 export default defineNuxtPlugin(() => {
-  const { loadContent } = useSiteContent();
-  loadContent();
+  const { loadSiteContent } = useSiteContent();
+  loadSiteContent();
 });

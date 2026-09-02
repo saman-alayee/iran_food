@@ -1,4 +1,4 @@
-import { foodImages } from './useFoodImages';
+import { foodThumbs } from './useFoodImages';
 
 export const defaultSiteContent = {
   brand: 'Iran Food',
@@ -14,7 +14,7 @@ export const defaultSiteContent = {
     'با هم برای تغذیه بهتر، زندگی سالم‌تر، آینده روشن‌تر',
   ],
   countdownImage: '/images/coming-soon-hero.png',
-  whyTitle: 'چرا ایران فود مهم است؟',
+  whyTitle: 'کاربردهای دیتاست',
   whyImage: '/images/why-section-hero.png',
   whyCards: [
     { title: 'اولین دیتاست استاندارد', text: 'اولین دیتاست استاندارد جامع غذاهای ایرانی' },
@@ -100,6 +100,9 @@ export const defaultSiteContent = {
     linkedin: 'https://linkedin.com',
   },
   uploadGuideTitle: 'دستورالعمل استاندارد عملیاتی (SOP)',
+  uploadSectionTitle: 'مشارکت در پروژه — آپلود عکس',
+  uploadSectionIntro:
+    'ابتدا ویدیوی راهنمای تصویربرداری را ببینید، شرایط را رعایت کنید و سپس تصویر غذای خود را ارسال کنید.',
   uploadModalTitle: 'آپلود عکس',
   uploadModalSubtitle: 'پروتکل تصویربرداری از نمونه‌های غذایی',
   uploadButtonLabel: 'آپلود عکس',
@@ -164,7 +167,7 @@ export const defaultSiteContent = {
     { icon: 'ai', text: 'مناسب برای هوش مصنوعی و حوزه سلامت' },
     { icon: 'standard', text: 'دیتاست استاندارد، به‌روز و قابل توسعه' },
   ],
-  heroThumbs: foodImages.map((item) => ({
+  heroThumbs: foodThumbs.map((item) => ({
     src: item.src,
     alt: item.alt,
     name: item.name,
@@ -177,6 +180,16 @@ export const defaultSiteContent = {
     { src: '/images/project/labeling-tool.png', alt: 'ابزار لیبل‌گذاری', caption: 'لیبل‌گذاری دقیق' },
     { src: '/images/project/team-collaboration.png', alt: 'همکاری تیم', caption: 'کنترل کیفیت' },
   ],
+  sections: {
+    hero: true,
+    countdown: true,
+    why: true,
+    apps: false,
+    progress: true,
+    upload: true,
+    events: true,
+    footer: true,
+  },
 } as const;
 
 export type SiteContent = typeof defaultSiteContent;
@@ -230,23 +243,18 @@ export function normalizeSiteContent(data: Partial<SiteContent> & Record<string,
     };
   }
 
-  const appIcons = ['health', 'benchmark', 'api', 'ai', 'app', 'research'] as const;
-  const whyLooksLikeApps = /کاربرد/.test(String(merged.whyTitle || ''));
   if (!merged.apps?.length) {
-    if (whyLooksLikeApps && merged.whyCards?.length) {
-      merged.apps = merged.whyCards.map((card, index) => ({
-        title: card.title,
-        icon: appIcons[index % appIcons.length],
-      }));
-      merged.appsTitle = merged.whyTitle || defaultSiteContent.appsTitle;
-      merged.whyTitle = defaultSiteContent.whyTitle;
-      merged.whyCards = [...defaultSiteContent.whyCards];
-    } else {
-      merged.apps = [...defaultSiteContent.apps];
-    }
+    merged.apps = [...defaultSiteContent.apps];
   }
   if (!String(merged.appsTitle || '').trim()) {
     merged.appsTitle = defaultSiteContent.appsTitle;
+  }
+  if (
+    !String(merged.whyTitle || '').trim() ||
+    /چرا ایران فود مهم است/.test(String(merged.whyTitle)) ||
+    /کاربردهای ایران فود/.test(String(merged.whyTitle))
+  ) {
+    merged.whyTitle = defaultSiteContent.whyTitle;
   }
 
   const countdownRaw = resolveCountdownRaw(data);
@@ -254,13 +262,23 @@ export function normalizeSiteContent(data: Partial<SiteContent> & Record<string,
     ? (parseCountdownTarget(countdownRaw)?.toISOString() ?? '')
     : '';
 
-  if (Array.isArray(merged.nav)) {
+  if (!merged.nav?.length || merged.nav.length < 4) {
+    merged.nav = [...defaultSiteContent.nav];
+  } else if (Array.isArray(merged.nav)) {
     merged.nav = merged.nav.map((item) => {
       let href = item.href;
       if (item.label === 'درباره ما' || href === '#countdown' || href === '#why-old') {
         href = '#about';
       }
-      if (item.label === 'کاربردها' || href === '#apps' || href === '#why') href = '#apps';
+      if (
+        item.label === 'کاربردها' ||
+        /کاربرد/.test(item.label) ||
+        href === '#apps' ||
+        href === '#why'
+      ) {
+        href = '#apps';
+      }
+      if (item.label === 'مشارکت' || href === '#upload') href = '#rewards';
       return { ...item, href };
     });
   }
@@ -275,6 +293,8 @@ export function normalizeSiteContent(data: Partial<SiteContent> & Record<string,
   }
 
   if (!merged.uploadGuideTitle) merged.uploadGuideTitle = defaultSiteContent.uploadGuideTitle;
+  if (!merged.uploadSectionTitle) merged.uploadSectionTitle = defaultSiteContent.uploadSectionTitle;
+  if (!merged.uploadSectionIntro) merged.uploadSectionIntro = defaultSiteContent.uploadSectionIntro;
   if (!merged.uploadModalTitle) merged.uploadModalTitle = defaultSiteContent.uploadModalTitle;
   if (!merged.uploadModalSubtitle) merged.uploadModalSubtitle = defaultSiteContent.uploadModalSubtitle;
   if (!merged.uploadButtonLabel) merged.uploadButtonLabel = defaultSiteContent.uploadButtonLabel;
@@ -291,6 +311,24 @@ export function normalizeSiteContent(data: Partial<SiteContent> & Record<string,
   if (!merged.countdownTimerLabel) {
     merged.countdownTimerLabel = defaultSiteContent.countdownTimerLabel;
   }
+
+  const collage = data.heroCollage as Array<{ src?: string; alt?: string; name?: string }> | undefined;
+  if (!merged.heroThumbs?.length) {
+    if (Array.isArray(collage) && collage.length) {
+      merged.heroThumbs = collage
+        .filter((item) => item?.src)
+        .map((item) => ({
+          src: String(item.src),
+          alt: String(item.alt || item.name || ''),
+          name: String(item.name || item.alt || ''),
+        }));
+    } else {
+      merged.heroThumbs = [...defaultSiteContent.heroThumbs];
+    }
+  }
+
+  const incomingSections = data.sections as Partial<typeof defaultSiteContent.sections> | undefined;
+  merged.sections = { ...defaultSiteContent.sections, ...incomingSections };
 
   return merged;
 }
@@ -318,8 +356,11 @@ export function useSiteContent() {
     loadSiteContent();
   }
 
+  const sections = computed(() => siteContentState.value.sections ?? defaultSiteContent.sections);
+
   return {
     siteContent: computed(() => siteContentState.value),
+    sections,
     loadSiteContent,
   };
 }
