@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { assetUrl, useSiteContent } from '~/composables/useSiteContent';
+
 definePageMeta({
   layout: false,
 });
@@ -9,15 +11,23 @@ useSeoMeta({
   robots: 'noindex, nofollow',
 });
 
-const { apiFetch } = useApi();
+const { apiFetch, apiBase } = useApi();
 const { setSession, loadToken } = useAuth();
+const { siteContent, loadSiteContent } = useSiteContent();
 
 const email = ref('');
 const password = ref('');
 const error = ref('');
 const loading = ref(false);
 
-onMounted(() => {
+const loginLogoSrc = computed(() => {
+  const data = siteContent.value as { loginLogo?: string; siteLogo?: string };
+  const path = data.loginLogo || data.siteLogo || '/images/iran-food-logo.png';
+  return assetUrl(path, apiBase);
+});
+
+onMounted(async () => {
+  await loadSiteContent();
   if (loadToken()) {
     navigateTo('/admin');
   }
@@ -62,6 +72,15 @@ async function submit() {
       class="w-full max-w-md rounded-2xl bg-white p-5 shadow-soft sm:rounded-3xl sm:p-8"
       @submit.prevent="submit"
     >
+      <div class="mb-4 flex justify-center">
+        <img
+          :src="loginLogoSrc"
+          alt="Iran Food Dataset"
+          class="h-12 w-auto max-w-[220px] object-contain sm:h-14 sm:max-w-[260px]"
+          width="260"
+          height="72"
+        />
+      </div>
       <h1 class="text-center text-xl font-extrabold text-brand-green">ورود ادمین</h1>
       <p class="mt-2 text-center text-sm text-slate-500">پنل مدیریت Iran Food</p>
 

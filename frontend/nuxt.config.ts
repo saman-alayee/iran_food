@@ -70,7 +70,11 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:4002',
+      apiBase:
+        process.env.NUXT_PUBLIC_API_BASE ||
+        (process.env.NODE_ENV === 'production'
+          ? 'https://api.iranfoodd.ir'
+          : 'http://localhost:4002'),
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3001',
     },
   },

@@ -127,6 +127,18 @@ async function saveContent() {
         whyHero: String(payload.whyImage).replace(/^\//, ''),
       };
     }
+    if (payload.siteLogo) {
+      payload.images = {
+        ...(payload.images as object),
+        logo: String(payload.siteLogo).replace(/^\//, ''),
+      };
+    }
+    if (payload.loginLogo) {
+      payload.images = {
+        ...(payload.images as object),
+        loginLogo: String(payload.loginLogo).replace(/^\//, ''),
+      };
+    }
     const res = await apiFetch<{ success: boolean; message: string; data: SiteContent }>(
       '/api/content',
       {
@@ -866,6 +878,40 @@ onBeforeUnmount(() => {
 
           <!-- General -->
           <template v-else-if="activeTab === 'general'">
+            <div class="rounded-xl border border-brand-line/70 bg-brand-cream/40 p-4">
+              <span class="mb-2 block text-sm font-semibold">لوگوی سایت (navbar و footer)</span>
+              <div v-if="content.siteLogo" class="mb-3 flex justify-start">
+                <img
+                  :src="mediaUrl(String(content.siteLogo))"
+                  alt="لوگوی سایت"
+                  class="h-12 w-auto max-w-[220px] object-contain rounded-lg bg-white p-2"
+                />
+              </div>
+              <input
+                v-model="content.siteLogo"
+                class="field-input mb-2"
+                dir="ltr"
+                placeholder="/images/iran-food-logo.png"
+              />
+              <input type="file" accept="image/*" @change="onImagePick('siteLogo', $event)" />
+            </div>
+            <div class="rounded-xl border border-brand-line/70 bg-brand-cream/40 p-4">
+              <span class="mb-2 block text-sm font-semibold">لوگوی صفحه ورود ادمین (Sign-in)</span>
+              <div v-if="content.loginLogo" class="mb-3 flex justify-start">
+                <img
+                  :src="mediaUrl(String(content.loginLogo))"
+                  alt="لوگوی ورود"
+                  class="h-12 w-auto max-w-[220px] object-contain rounded-lg bg-white p-2"
+                />
+              </div>
+              <input
+                v-model="content.loginLogo"
+                class="field-input mb-2"
+                dir="ltr"
+                placeholder="/images/iran-food-logo.png"
+              />
+              <input type="file" accept="image/*" @change="onImagePick('loginLogo', $event)" />
+            </div>
             <label class="block text-sm">
               <span class="mb-1 block font-semibold">شعار فوتر</span>
               <input v-model="content.footerSlogan" class="field-input" />

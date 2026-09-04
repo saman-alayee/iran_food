@@ -1,6 +1,8 @@
 export const defaultSiteContent = {
   brand: 'Iran Food',
   tagline: 'اولین دیتاست تصویری غذاهای ایرانی',
+  siteLogo: '/images/iran-food-logo.png',
+  loginLogo: '/images/iran-food-logo.png',
   countdownTargetDate: '',
   countdownTimerLabel: 'زمان باقی‌مانده تا انتشار',
   uploadGuideTitle: 'دستورالعمل استاندارد عملیاتی (SOP)',

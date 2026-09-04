@@ -3,6 +3,8 @@ import { foodThumbs } from './useFoodImages';
 export const defaultSiteContent = {
   brand: 'Iran Food',
   tagline: 'اولین دیتاست تصویری غذاهای ایرانی',
+  siteLogo: '/images/iran-food-logo.png',
+  loginLogo: '/images/iran-food-logo.png',
   supervisedBy: 'پژوهش تحت نظارت دانشگاه علوم پزشکی تهران',
   footerSlogan: 'با هم برای تغذیه بهتر، سبک زندگی سالم‌تر، آینده روشن‌تر',
   countdownTitle: 'نسخه اولیه ایران فود به زودی منتشر می‌شود',
@@ -236,11 +238,20 @@ export function normalizeSiteContent(data: Partial<SiteContent> & Record<string,
   if (images?.whyHero && !data.whyImage) {
     merged.whyImage = images.whyHero.startsWith('/') ? images.whyHero : `/${images.whyHero}`;
   }
-  if (images?.logo) {
-    (merged as SiteContent & { images?: { logo?: string } }).images = {
-      ...(merged as SiteContent & { images?: { logo?: string } }).images,
-      logo: images.logo.startsWith('/') ? images.logo : `/${images.logo}`,
-    };
+  if (images?.logo && !(data as { siteLogo?: string }).siteLogo) {
+    merged.siteLogo = images.logo.startsWith('/') ? images.logo : `/${images.logo}`;
+  }
+  if ((images as { loginLogo?: string })?.loginLogo && !(data as { loginLogo?: string }).loginLogo) {
+    merged.loginLogo = (images as { loginLogo: string }).loginLogo.startsWith('/')
+      ? (images as { loginLogo: string }).loginLogo
+      : `/${(images as { loginLogo: string }).loginLogo}`;
+  }
+  if (!(merged as SiteContent & { loginLogo?: string }).loginLogo) {
+    (merged as SiteContent & { loginLogo?: string }).loginLogo =
+      (merged as SiteContent & { siteLogo?: string }).siteLogo || '/images/iran-food-logo.png';
+  }
+  if (!(merged as SiteContent & { siteLogo?: string }).siteLogo) {
+    (merged as SiteContent & { siteLogo?: string }).siteLogo = '/images/iran-food-logo.png';
   }
 
   if (!merged.apps?.length) {

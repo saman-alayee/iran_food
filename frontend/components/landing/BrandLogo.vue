@@ -15,8 +15,8 @@ withDefaults(
 );
 
 const logoSrc = computed(() => {
-  const images = (siteContent.value as { images?: { logo?: string } }).images;
-  const path = images?.logo || '/images/iran-food-logo.png';
+  const data = siteContent.value as { siteLogo?: string; images?: { logo?: string } };
+  const path = data.siteLogo || data.images?.logo || '/images/iran-food-logo.png';
   return assetUrl(path, apiBase);
 });
 </script>
@@ -36,14 +36,14 @@ const logoSrc = computed(() => {
       <img
         :src="logoSrc"
         :alt="siteContent.brand || 'Iran Food Dataset'"
-        class="shrink-0 object-contain"
+        class="shrink-0 object-contain object-left"
         :class="
           size === 'sm'
-            ? 'h-11 w-11 sm:h-12 sm:w-12'
-            : 'h-12 w-12 sm:h-14 sm:w-14'
+            ? 'h-8 w-auto max-w-[128px] sm:h-9 sm:max-w-[144px]'
+            : 'h-9 w-auto max-w-[148px] sm:h-10 sm:max-w-[168px]'
         "
-        width="112"
-        height="112"
+        width="180"
+        height="48"
         loading="eager"
         decoding="async"
       />
